@@ -174,9 +174,17 @@ class Metrics:
   ) -> 'Metrics':
     """Creates a new Discord server metrics."""
 
-    if not (member_count or online_count) or not (
-      isinstance(member_count, int) or isinstance(online_count, int)
-    ):
+   if (
+  (member_count is not None and not isinstance(member_count, int))
+  or (online_count is not None and not isinstance(online_count, int))
+):
+  raise TypeError(
+    'The specified member count and/or online count must be an integer.'
+  )
+elif member_count is None and online_count is None:
+  raise TypeError(
+    'The specified member count and/or online count must be an integer.'
+  )
       raise TypeError(
         'The specified member count and/or online count must be an integer.'
       )
