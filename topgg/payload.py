@@ -68,11 +68,11 @@ class TestPayload:
 
   __slots__: tuple[str, ...] = ('project', 'user')
 
-  """The unique identifier for this connection."""
   project: PartialProject
-
   """The project that the test refers to."""
+
   user: User
+  """The user who triggered this event."""
 
   def __init__(self, json: dict):
     self.project = PartialProject(json['project'])

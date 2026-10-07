@@ -4,8 +4,6 @@ from enum import Enum
 class Locale(Enum):
   """A supported locale."""
 
-  __slots__: tuple[str, ...] = ()
-
   ENGLISH = 'en'
   GERMAN = 'de'
   FRENCH = 'fr'

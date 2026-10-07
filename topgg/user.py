@@ -87,10 +87,17 @@ class PaginatedVotes:
     self.__votes = [Vote(vote) for vote in json['data']]
     self.__cursor = json['cursor']
 
+  @property
+  def has_next(self) -> bool:
+    """Whether there is a next page of votes."""
+
+    return bool(self.__cursor)
+
   async def next(self) -> 'PaginatedVotes':
     """
     Tries to advance to the next page.
 
+    :exception ValueError: There is no next page.
     :exception Error: The client is already closed.
     :exception RequestError: The specified bot does not exist or the client has received other non-favorable responses from the API.
     :exception Ratelimited: Ratelimited from sending more requests.
@@ -98,6 +105,9 @@ class PaginatedVotes:
     :returns: The next page of votes.
     :rtype: :class:`.PaginatedVotes`
     """
+
+    if not self.has_next:
+      raise ValueError('There is no next page.')
 
     return await self.__client._get_votes(cursor=self.__cursor)
 
@@ -142,3 +152,4 @@ class User:
 
   def __eq__(self, other: object) -> bool:
     return isinstance(other, __class__) and self.id == other.id
+

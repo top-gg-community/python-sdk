@@ -8,8 +8,25 @@ What's New
 
 This page keeps a detailed human friendly rendering of what's new and changed in specific versions.
 
+v2.0.0
+======
+
+Complete rewrite of the SDK for Top.gg API v1.
+
+* New :class:`.Client` class replaces the old ``DBLClient``
+* New :class:`.Webhooks` class replaces the old ``WebhookManager``
+* New webhook payload classes: :class:`.VoteCreatePayload`, :class:`.TestPayload`, :class:`.IntegrationCreatePayload`, :class:`.IntegrationDeletePayload`
+* New :class:`.Project`, :class:`.PartialProject`, :class:`.Announcement`, :class:`.Metrics` data models
+* New :class:`.PaginatedVotes` for cursor-based paginated vote retrieval via :meth:`.Client.get_votes`
+* New :class:`.Widget` class for generating widget URLs across all platforms and project types
+* New :class:`.Platform`, :class:`.ProjectType`, :class:`.PayloadType`, :class:`.UserSource`, :class:`.Locale` enumerations
+* No longer depends on any Discord API wrapper
+* Per-endpoint rate limiting with :class:`.Ratelimiter`
+* Async context manager support on :class:`.Client`
+
 v2.0.0a
 =======
+
 * :obj:`~.DBLClient` now doesn't take in ``discord.Client`` instance
 * Introduced new `autopost <api/autopost.html>`__ and `data injection <api/data.html>`__ API
 * `Webhook <api/webhook.html>`__ API breaking changes

@@ -159,7 +159,7 @@ class Metrics:
   ) -> 'Metrics':
     """Creates a new Discord bot metrics."""
 
-    if not (server_count or shard_count) or not (
+    if server_count is None and shard_count is None or not (
       isinstance(server_count, int) or isinstance(shard_count, int)
     ):
       raise TypeError(
@@ -174,7 +174,7 @@ class Metrics:
   ) -> 'Metrics':
     """Creates a new Discord server metrics."""
 
-    if not (member_count or online_count) or not (
+    if member_count is None and online_count is None or not (
       isinstance(member_count, int) or isinstance(online_count, int)
     ):
       raise TypeError(

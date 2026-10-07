@@ -30,7 +30,7 @@ class Widget:
     :rtype: :py:class:`.str`
     """
 
-    if not isinstance(project_type, ProjectType) or not isinstance(id, int):
+    if not isinstance(platform, Platform) or not isinstance(project_type, ProjectType) or not isinstance(id, int):
       raise TypeError(
         "The specified platform, project type, and/or project ID's type is invalid."
       )
@@ -38,7 +38,7 @@ class Widget:
     return f'{BASE_URL}/widgets/large/{platform.value}/{project_type.value}/{id}'
 
   @staticmethod
-  def votes(platform: 'Platform', project_type: ProjectType, id: int) -> str:
+  def votes(platform: Platform, project_type: ProjectType, id: int) -> str:
     """
     Generates a small widget URL for displaying votes.
 
@@ -55,7 +55,7 @@ class Widget:
     :rtype: :py:class:`.str`
     """
 
-    if not isinstance(project_type, ProjectType) or not isinstance(id, int):
+    if not isinstance(platform, Platform) or not isinstance(project_type, ProjectType) or not isinstance(id, int):
       raise TypeError(
         "The specified platform, project type, and/or project ID's type is invalid."
       )
@@ -63,7 +63,7 @@ class Widget:
     return f'{BASE_URL}/widgets/small/votes/{platform.value}/{project_type.value}/{id}'
 
   @staticmethod
-  def owner(platform: 'Platform', project_type: ProjectType, id: int) -> str:
+  def owner(platform: Platform, project_type: ProjectType, id: int) -> str:
     """
     Generates a small widget URL for displaying a project's owner.
 
@@ -80,7 +80,7 @@ class Widget:
     :rtype: :py:class:`.str`
     """
 
-    if not isinstance(project_type, ProjectType) or not isinstance(id, int):
+    if not isinstance(platform, Platform) or not isinstance(project_type, ProjectType) or not isinstance(id, int):
       raise TypeError(
         "The specified platform, project type, and/or project ID's type is invalid."
       )
@@ -88,7 +88,7 @@ class Widget:
     return f'{BASE_URL}/widgets/small/owner/{platform.value}/{project_type.value}/{id}'
 
   @staticmethod
-  def social(platform: 'Platform', project_type: ProjectType, id: int) -> str:
+  def social(platform: Platform, project_type: ProjectType, id: int) -> str:
     """
     Generates a small widget URL for displaying social stats.
 
@@ -105,7 +105,7 @@ class Widget:
     :rtype: :py:class:`.str`
     """
 
-    if not isinstance(project_type, ProjectType) or not isinstance(id, int):
+    if not isinstance(platform, Platform) or not isinstance(project_type, ProjectType) or not isinstance(id, int):
       raise TypeError(
         "The specified platform, project type, and/or project ID's type is invalid."
       )

@@ -22,7 +22,7 @@ class Ratelimiter:
   _max_calls: int
   _period: float = 1.0
   _calls: deque[float] = field(default_factory=deque)
-  _lock: asyncio.Lock = asyncio.Lock()
+  _lock: asyncio.Lock = field(default_factory=asyncio.Lock)
   _cancelled_delay: bool = field(default=False, init=False)
 
   async def __aenter__(self) -> 'Ratelimiter':
@@ -62,4 +62,6 @@ class Ratelimiter:
   def _timespan(self) -> float:
     """The timespan between the first call and last call."""
 
+    if len(self._calls) < 2:
+      return 0.0
     return self._calls[-1] - self._calls[0]

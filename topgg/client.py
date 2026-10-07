@@ -63,7 +63,7 @@ class Client:
 
     self.__own_session = session is None
     self.__session = session or ClientSession(
-      timeout=ClientTimeout(total=MAXIMUM_DELAY_THRESHOLD * 1000.0)
+      timeout=ClientTimeout(total=MAXIMUM_DELAY_THRESHOLD)
     )
     self.__token = token
 
@@ -113,49 +113,58 @@ class Client:
     if body is not None:
       kwargs['data'] = json.dumps(body)
 
-    status = None
-    retry_after = 0.0
-    output = None
+    max_retries = 3
+    retries = 0
 
-    async with ratelimiter:
-      try:
-        async with self.__session.request(
-          method,
-          BASE_URL + path,
-          headers={
-            'Authorization': f'Bearer {self.__token}',
-            'Content-Type': 'application/json',
-            'User-Agent': f'topggpy (https://github.com/top-gg-community/python-sdk {VERSION}) Python/',
-          },
-          **kwargs,
-        ) as resp:
-          status = resp.status
+    while True:
+      status = None
+      retry_after = 0.0
+      output = None
 
-          try:
+      async with ratelimiter:
+        try:
+          async with self.__session.request(
+            method,
+            BASE_URL + path,
+            headers={
+              'Authorization': f'Bearer {self.__token}',
+              'Content-Type': 'application/json',
+              'User-Agent': f'topggpy (https://github.com/top-gg-community/python-sdk {VERSION}) Python/',
+            },
+            **kwargs,
+          ) as resp:
+            status = resp.status
+
             try:
-              output = await resp.json()
-            except:
+              try:
+                output = await resp.json()
+              except:
+                pass
+
+              retry_after = float(resp.headers.get('Retry-After', 0))
+            except (ValueError, json.decoder.JSONDecodeError):  # pragma: nocover
               pass
 
-            retry_after = float(resp.headers.get('Retry-After', 0))
-          except (ValueError, json.decoder.JSONDecodeError):  # pragma: nocover
-            pass
+            resp.raise_for_status()
 
-          resp.raise_for_status()
+            return output
+        except ClientResponseError:
+          if status == 429 and retry_after is not None:
+            if retry_after > MAXIMUM_DELAY_THRESHOLD:
+              self.__current_ratelimits[ratelimiter_key] = time() + retry_after
 
-          return output
-      except ClientResponseError:
-        if status == 429 and retry_after is not None:
-          if retry_after > MAXIMUM_DELAY_THRESHOLD:
-            self.__current_ratelimits[ratelimiter_key] = time() + retry_after
+              raise Ratelimited(retry_after) from None
+            else:  # pragma: nocover
+              retries += 1
 
-            raise Ratelimited(retry_after) from None
-          else:  # pragma: nocover
-            await sleep(retry_after)
+              if retries >= max_retries:
+                raise Ratelimited(retry_after) from None
 
-            return await self.__request(method, path, params=params, body=body)
+              await sleep(retry_after)
 
-        raise RequestError(output and output.get('detail', output), status) from None
+              continue
+
+          raise RequestError(output and output.get('detail', output), status) from None
 
   async def get_self(self) -> Project:
     """
@@ -231,7 +240,7 @@ class Client:
       await self.__request(
         'POST',
         '/projects/@me/announcements',
-        body={'title': title[100:], 'content': content[2000:]},
+        body={'title': title[:100], 'content': content[:2000]},
       )
     )
 
@@ -367,3 +376,4 @@ class Client:
 
   async def __aexit__(self, *_, **__) -> None:
     await self.close()
+
