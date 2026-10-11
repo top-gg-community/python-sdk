@@ -10,9 +10,12 @@ The community-maintained Python SDK for Top.gg.
 - [Setting up](#setting-up)
 - [Usage](#usage)
   - [Getting your project's information](#getting-your-projects-information)
+  - [Updating your project's information](#updating-your-projects-information)
   - [Getting your project's vote information of a user](#getting-your-projects-vote-information-of-a-user)
   - [Getting a cursor-based paginated list of votes for your project](#getting-a-cursor-based-paginated-list-of-votes-for-your-project)
+  - [Posting an announcement for your project](#posting-an-announcement-for-your-project)
   - [Posting your bot's application commands list](#posting-your-bots-application-commands-list)
+  - [Posting your project's metric stats](#posting-your-projects-metric-stats)
   - [Generating widget URLs](#generating-widget-urls)
   - [Webhooks](#webhooks)
 
@@ -42,6 +45,16 @@ client = topgg.Client(token)
 
 ```py
 project = await client.get_self()
+```
+
+### Updating your project's information
+
+```py
+await client.edit_self(headline={
+  topgg.Locale.ENGLISH: 'A great bot with tons of features!'
+}, content={
+  topgg.Locale.ENGLISH: '# Welcome\nThis is the full page description for your project...'
+})
 ```
 
 ### Getting your project's vote information of a user
@@ -77,6 +90,15 @@ for vote in second_page:
 third_page = await second_page.next()
 ```
 
+### Posting an announcement for your project
+
+```py
+announcement = await client.post_announcement(
+  'Version 2.0 Released!',
+  'We just released version 2.0 with a bunch of new features and improvements.',
+)
+```
+
 ### Posting your bot's application commands list
 
 #### Discord.py
@@ -105,6 +127,29 @@ await client.post_commands(
     }
   ]
 )
+```
+
+### Posting your project's metric stats
+
+#### Single
+
+```py
+await client.post_metrics(topgg.Metrics.discord_bot(server_count=1, shard_count=1))
+```
+
+#### Batch
+
+```py
+from datetime import datetime
+
+
+timestamp1 = datetime.now()
+timestamp2 = datetime.now()
+
+await client.post_metrics({
+  timestamp1: topgg.Metrics.discord_bot(server_count=1, shard_count=1),
+  timestamp2: topgg.Metrics.discord_bot(server_count=1, shard_count=1)
+})
 ```
 
 ### Generating widget URLs
