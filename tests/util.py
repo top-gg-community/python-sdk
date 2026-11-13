@@ -1,17 +1,17 @@
-from multidict import CIMultiDict, CIMultiDictProxy
-from contextlib import nullcontext
-from typing import TYPE_CHECKING
-from inspect import getmembers
-from sys import stdout
-from yarl import URL
-from os import path
-import aiohttp
 import json
-import mock
+from contextlib import nullcontext
+from inspect import getmembers
+from os import path
+from sys import stdout
+from typing import TYPE_CHECKING
+from unittest import mock
+
+import aiohttp
+from multidict import CIMultiDict, CIMultiDictProxy
+from yarl import URL
 
 if TYPE_CHECKING:
   from io import TextIOWrapper
-  from typing import Any
 
 
 CURRENT_DIR = path.dirname(path.realpath(__file__))
@@ -35,12 +35,13 @@ def is_local(data: object) -> bool:
 
 def _test_attributes_inner(obj: object, indent_level: int) -> None:
   names = getattr(obj.__class__, '__slots__', ()) + tuple(
-    map(
-      lambda pair: pair[0], getmembers(obj.__class__, lambda o: isinstance(o, property))
-    )
+    pair[0] for pair in getmembers(obj.__class__, lambda o: isinstance(o, property))
   )
 
   for name in names:
+    if name == 'session' and obj.__class__.__name__ == 'Oauth2Client':
+      continue
+
     stdout.write(f'{" " * indent_level}{obj.__class__.__name__}.{name}')
     data = (
       getattr(obj, f'_{obj.__class__.__name__}{name}')
@@ -105,8 +106,8 @@ def _test_attributes(obj: object) -> None:
 
 class RequestMock:
   __slots__: tuple[str, ...] = (
-    '__mock_response',
     '__mock_json_response',
+    '__mock_response',
   )
 
   __mock_response: mock.Mock
@@ -159,7 +160,7 @@ class RequestMock:
   def __enter__(self) -> mock.Mock:
     return mock.Mock(return_value=nullcontext(self.__mock_response))
 
-  def __exit__(self, *_: 'Any') -> None:
+  def __exit__(self, *_: object) -> None:
     if self.__mock_json_response is not None:
       self.__mock_json_response.close()
       self.__mock_json_response = None

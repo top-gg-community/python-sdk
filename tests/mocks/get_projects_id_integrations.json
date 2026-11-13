@@ -1,0 +1,9 @@
+[
+  {
+    "id": "1234567890",
+    "name": "Example integration",
+    "description": "Sends vote events to your service.",
+    "icon_url": "https://cdn.top.gg/integrations/example.webp",
+    "connected": true
+  }
+]

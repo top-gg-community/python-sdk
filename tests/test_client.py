@@ -1,37 +1,25 @@
-from multidict import CIMultiDict
-from datetime import datetime
-from os import path
 import sys
+from datetime import UTC, datetime, timedelta
+from os import path
+from typing import TYPE_CHECKING
+
+from multidict import CIMultiDict
 
 sys.path.insert(0, path.join(path.dirname(path.realpath(__file__)), '..'))
 
 
-from typing import TYPE_CHECKING
-from collections import deque
-from time import time
-import pytest_asyncio
+from collections.abc import AsyncGenerator
+
 import pytest
-
-if TYPE_CHECKING:
-  from typing import AsyncGenerator
-
+import pytest_asyncio
+from util import RequestMock, _test_attributes
 
 import topgg
 
-from util import _test_attributes, RequestMock
-
-
-MOCK_TOKEN = '.eyJfdCI6IiIsImlkIjoiMzY0ODA2MDI5ODc2NTU1Nzc2In0=.'
-MOCK_LOCALE_MAPPING = {topgg.Locale.ENGLISH: 'test', topgg.Locale.JAPANESE: 'test'}
-
 
 @pytest_asyncio.fixture
-async def client(
-  monkeypatch: pytest.MonkeyPatch,
-) -> 'AsyncGenerator[topgg.Client, None]':
-  client = topgg.Client(MOCK_TOKEN)
-
-  monkeypatch.setattr(topgg.Ratelimiter, '_calls', deque([time()]))
+async def client() -> AsyncGenerator[topgg.Client, None]:
+  client = topgg.Client('')
 
   yield client
   await client.close()
@@ -39,24 +27,16 @@ async def client(
 
 def test_Client_attributes_work(client: topgg.Client) -> None:
   _test_attributes(client)
+  _test_attributes(client._http)
 
 
 @pytest.mark.asyncio
 async def test_Client_basic_error_handling_works() -> None:
-  if not TYPE_CHECKING:
-    with pytest.raises(TypeError, match='^An API token is required to use this API.$'):
-      async with topgg.Client(None):
-        pass
-
-  with pytest.raises(ValueError, match='^An API token is required to use this API.$'):
-    async with topgg.Client(''):
-      pass
-
   with pytest.raises(topgg.Error, match='^Client session is already closed.$'):
-    test_client = topgg.Client(MOCK_TOKEN)
+    test_client = topgg.Client('')
 
     await test_client.close()
-    await test_client.get_self()
+    await test_client.get_project()
 
 
 @pytest.mark.asyncio
@@ -67,7 +47,7 @@ async def test_Client_request_error_handling_works(
     monkeypatch.setattr('aiohttp.ClientSession.request', request)
 
     with pytest.raises(topgg.RequestError, match='^Got 404: ') as raises:
-      await client.get_self()
+      await client.get_project()
 
     _test_attributes(raises.value)
 
@@ -83,57 +63,113 @@ async def test_Client_request_error_handling_works(
         topgg.Ratelimited,
         match='^The client is blocked by the API. Please try again in ',
       ) as raises:
-        await client.get_self()
+        await client.get_project()
 
       _test_attributes(raises.value)
       assert 0 <= (6000.0 - raises.value.retry_after) < 0.01
 
-    request.assert_called_once()
+    assert request.call_count == 2
 
 
 @pytest.mark.asyncio
-async def test_Client_get_self_works(
+async def test_Client_get_projects_works(
   monkeypatch: pytest.MonkeyPatch,
   client: topgg.Client,
 ) -> None:
-  with RequestMock(200, 'OK', response='mocks/get_self.json') as request:
+  with RequestMock(200, 'OK', response='mocks/get_projects.json') as request:
     monkeypatch.setattr('aiohttp.ClientSession.request', request)
 
-    project = await client.get_self()
+    projects = await client.get_projects()
+    _test_attributes(projects)
 
+    for project in projects:
+      _test_attributes(project)
+
+    await client.get_projects(projects)
+
+    assert request.call_count == 2
+
+
+@pytest.mark.asyncio
+async def test_Client_get_projects_id_works(
+  monkeypatch: pytest.MonkeyPatch,
+  client: topgg.Client,
+) -> None:
+  with RequestMock(200, 'OK', response='mocks/get_projects_id.json') as request:
+    monkeypatch.setattr('aiohttp.ClientSession.request', request)
+
+    project = await client.get_project()
     _test_attributes(project)
 
     request.assert_called_once()
 
 
 @pytest.mark.asyncio
-async def test_Client_edit_self_works(
+async def test_Client_edit_project_works(
   monkeypatch: pytest.MonkeyPatch,
   client: topgg.Client,
 ) -> None:
-  if not TYPE_CHECKING:
-    with pytest.raises(
-      TypeError, match=r'^The locale mapping\'s keys must be an instance of Locale\.$'
-    ):
-      await client.edit_self(headline={'en': 'test'})
-
-    with pytest.raises(
-      TypeError, match=r'^The locale mapping\'s keys must be an instance of Locale\.$'
-    ):
-      await client.edit_self(headline={'en': 'test'}, content=MOCK_LOCALE_MAPPING)
-
-    with pytest.raises(
-      TypeError, match=r'^The locale mapping\'s keys must be an instance of Locale\.$'
-    ):
-      await client.edit_self(content={'en': 'test'})
-
-  with pytest.raises(ValueError, match=r'^headline or content must be specified\.$'):
-    await client.edit_self()
-
-  with RequestMock(204, 'No Content') as request:
+  with RequestMock(204, 'No Content', response={}) as request:
     monkeypatch.setattr('aiohttp.ClientSession.request', request)
 
-    await client.edit_self(headline=MOCK_LOCALE_MAPPING, content=MOCK_LOCALE_MAPPING)
+    with pytest.raises(
+      ValueError, match=r'^A LocaleMap text length is below the minimum threshold\.$'
+    ):
+      headline = topgg.LocaleMap(
+        {topgg.Locale.ENGLISH: 'hi', topgg.Locale.GERMAN: 'hi'}
+      )
+
+      page_content = topgg.LocaleMap(
+        {topgg.Locale.ENGLISH: 'hi', topgg.Locale.GERMAN: 'hi'}
+      )
+
+      await client.edit_project(headline, page_content)
+
+    if not TYPE_CHECKING:
+      with pytest.raises(TypeError, match=r'^The specified locale must be a Locale\.$'):
+        headline = topgg.LocaleMap(
+          {
+            'ENGLISH': 'hello this is a headline',
+            'GERMAN': 'hallo das ist eine Überschrift',
+          }
+        )
+
+        page_content = topgg.LocaleMap(
+          {
+            'ENGLISH': 'hello this is a page content' * 20,
+            'GERMAN': 'hallo dies ist ein seiteninhalt' * 20,
+          }
+        )
+
+        await client.edit_project(headline, page_content)
+
+      with pytest.raises(TypeError, match=r'^The specified text must be a string\.$'):
+        headline = topgg.LocaleMap(
+          {topgg.Locale.ENGLISH: [None] * 100, topgg.Locale.GERMAN: [None] * 100}
+        )
+
+        page_content = topgg.LocaleMap(
+          {topgg.Locale.ENGLISH: [None] * 100, topgg.Locale.GERMAN: [None] * 100}
+        )
+
+        await client.edit_project(headline, page_content)
+
+    headline = topgg.LocaleMap(
+      {
+        topgg.Locale.ENGLISH: 'hello this is a headline',
+        topgg.Locale.GERMAN: 'hallo das ist eine Überschrift',
+      }
+    )
+    _test_attributes(headline)
+
+    page_content = topgg.LocaleMap(
+      {
+        topgg.Locale.ENGLISH: 'hello this is a page content' * 20,
+        topgg.Locale.GERMAN: 'hallo dies ist ein seiteninhalt' * 20,
+      }
+    )
+
+    await client.edit_project(headline, page_content)
 
     request.assert_called_once()
 
@@ -143,29 +179,139 @@ async def test_Client_post_announcement_works(
   monkeypatch: pytest.MonkeyPatch,
   client: topgg.Client,
 ) -> None:
-  if not TYPE_CHECKING:
-    with pytest.raises(
-      TypeError,
-      match=r'^The specified title and content must be a string\.$',
-    ):
-      await client.post_announcement(None, 2)
-
-  with pytest.raises(
-    ValueError,
-    match=r'^The specified title and content length must be within the accepted ranges\.$',
-  ):
-    await client.post_announcement('test', 'test')
-
-  with RequestMock(200, 'OK', response='mocks/post_announcement.json') as request:
+  with RequestMock(204, 'No Content', response={}) as request:
     monkeypatch.setattr('aiohttp.ClientSession.request', request)
 
-    announcement = await client.post_announcement(
-      'Version 2.0 Released!',
-      'We just released version 2.0 with a bunch of new features and improvements.',
+    with pytest.raises(
+      ValueError, match=r'^Title length is outside of the accepted threshold\.$'
+    ):
+      await client.post_announcement(
+        '', 'Lorem ipsum' * 25, topgg.AnnouncementCategory.ANNOUNCEMENT
+      )
+
+    with pytest.raises(
+      ValueError, match=r'^Content length is outside of the accepted threshold\.$'
+    ):
+      await client.post_announcement(
+        'My project announcement',
+        'Lorem ipsum',
+        topgg.AnnouncementCategory.ANNOUNCEMENT,
+      )
+
+    await client.post_announcement(
+      'My project announcement',
+      'Lorem ipsum' * 25,
+      topgg.AnnouncementCategory.ANNOUNCEMENT,
     )
 
-    _test_attributes(announcement)
+    request.assert_called_once()
 
+
+@pytest.mark.asyncio
+async def test_Client_post_metrics_works(
+  monkeypatch: pytest.MonkeyPatch,
+  client: topgg.Client,
+) -> None:
+  with RequestMock(204, 'No Content', response={}) as request:
+    monkeypatch.setattr('aiohttp.ClientSession.request', request)
+
+    with pytest.raises(
+      ValueError, match=r'^The server count and\/or shard count must be specified\.$'
+    ):
+      await client.post_metrics(topgg.DiscordBotMetrics())
+
+    if not TYPE_CHECKING:
+      with pytest.raises(
+        TypeError, match=r'^The specified server count must be an integer\.$'
+      ):
+        await client.post_metrics(topgg.DiscordBotMetrics(server_count=''))
+
+      with pytest.raises(
+        TypeError, match=r'^The specified shard count must be an integer\.$'
+      ):
+        await client.post_metrics(topgg.DiscordBotMetrics(shard_count=''))
+
+    metrics = topgg.DiscordBotMetrics(server_count=5)
+    _test_attributes(metrics)
+
+    await client.post_metrics(metrics)
+    await client.post_metrics(topgg.DiscordBotMetrics(shard_count=5))
+
+    with pytest.raises(
+      ValueError,
+      match=r'^The total member count and\/or online member count must be specified\.$',
+    ):
+      await client.post_metrics(topgg.DiscordServerMetrics())
+
+    if not TYPE_CHECKING:
+      with pytest.raises(
+        TypeError, match=r'^The specified total member count must be an integer\.$'
+      ):
+        await client.post_metrics(topgg.DiscordServerMetrics(total_member_count=''))
+
+      with pytest.raises(
+        TypeError, match=r'^The specified online member count must be an integer\.$'
+      ):
+        await client.post_metrics(topgg.DiscordServerMetrics(online_member_count=''))
+
+    metrics = topgg.DiscordServerMetrics(total_member_count=5)
+    _test_attributes(metrics)
+
+    await client.post_metrics(metrics)
+    await client.post_metrics(topgg.DiscordServerMetrics(online_member_count=5))
+
+    if not TYPE_CHECKING:
+      with pytest.raises(
+        TypeError, match=r'^The specified player count must be an integer\.$'
+      ):
+        await client.post_metrics(topgg.RobloxGameMetrics(''))
+
+    metrics = topgg.RobloxGameMetrics(player_count=5)
+    _test_attributes(metrics)
+
+    await client.post_metrics(metrics)
+
+    assert request.call_count == 5
+
+
+@pytest.mark.asyncio
+async def test_Client_post_timestamped_metrics_works(
+  monkeypatch: pytest.MonkeyPatch,
+  client: topgg.Client,
+) -> None:
+  with RequestMock(204, 'No Content', response={}) as request:
+    monkeypatch.setattr('aiohttp.ClientSession.request', request)
+
+    metrics = topgg.TimestampedMetrics[topgg.DiscordBotMetrics]()
+    now = datetime.now(UTC)
+
+    with pytest.raises(
+      ValueError, match=r'^Batch length is outside of the accepted threshold\.$'
+    ):
+      await client.post_timestamped_metrics(metrics)
+
+    metrics.add(now - timedelta(hours=3), topgg.DiscordBotMetrics(server_count=5))
+    metrics.add(now - timedelta(hours=2), topgg.DiscordBotMetrics(server_count=6))
+    metrics.add(now - timedelta(hours=1), topgg.DiscordBotMetrics(server_count=7))
+
+    _test_attributes(metrics)
+
+    if not TYPE_CHECKING:
+      with pytest.raises(
+        TypeError, match=r'^The specified timestamp must be a datetime\.$'
+      ):
+        metrics.add(1, topgg.DiscordBotMetrics(server_count=7))
+
+      with pytest.raises(
+        TypeError, match=r'^The specified metrics must be a child of Metrics\.$'
+      ):
+        metrics.add(now - timedelta(hours=1), topgg.TimestampedMetrics())
+
+    await client.post_timestamped_metrics(metrics)
+
+    metrics.clear()
+
+    assert len(metrics._json) == 0
     request.assert_called_once()
 
 
@@ -174,14 +320,7 @@ async def test_Client_post_commands_works(
   monkeypatch: pytest.MonkeyPatch,
   client: topgg.Client,
 ) -> None:
-  if not TYPE_CHECKING:
-    with pytest.raises(
-      TypeError,
-      match="^The specified commands is not a list of dicts in the form of Discord API's raw JSON format.$",
-    ):
-      await client.post_commands(None)
-
-  with RequestMock(204, 'No Content') as request:
+  with RequestMock(204, 'No Content', response={}) as request:
     monkeypatch.setattr('aiohttp.ClientSession.request', request)
 
     await client.post_commands(
@@ -202,57 +341,28 @@ async def test_Client_post_commands_works(
 
 
 @pytest.mark.asyncio
-async def test_Client_post_metrics_works(
+async def test_Client_get_votes_works(
   monkeypatch: pytest.MonkeyPatch,
   client: topgg.Client,
 ) -> None:
-  if not TYPE_CHECKING:
-    with pytest.raises(
-      TypeError,
-      match=r'^The specified metrics has an invalid type\.$',
-    ):
-      await client.post_metrics('test')
-
-    with pytest.raises(
-      TypeError, match=r'^The specified player count must be an integer\.$'
-    ):
-      await client.post_metrics(topgg.Metrics.roblox_game(None))
-
-  with pytest.raises(
-    ValueError,
-    match=r'^The specified batch of metrics must not be empty\.$',
-  ):
-    await client.post_metrics({})
-
-  with pytest.raises(
-    TypeError,
-    match=r'^The specified server count and\/or shard count must be an integer\.$',
-  ):
-    await client.post_metrics(topgg.Metrics.discord_bot())
-
-  with pytest.raises(
-    TypeError,
-    match=r'^The specified member count and\/or online count must be an integer\.$',
-  ):
-    await client.post_metrics(topgg.Metrics.discord_server())
-
-  with RequestMock(204, 'No Content') as request:
+  with RequestMock(200, 'OK', response='mocks/get_projects_id_votes.json') as request:
     monkeypatch.setattr('aiohttp.ClientSession.request', request)
 
-    await client.post_metrics(topgg.Metrics.discord_bot(server_count=1, shard_count=1))
-    await client.post_metrics(topgg.Metrics.discord_bot(server_count=1))
+    with pytest.raises(ValueError, match=r'^Missing required arguments\.$'):
+      await client.get_votes()
 
-    await client.post_metrics(
-      topgg.Metrics.discord_server(member_count=1, online_count=1)
-    )
-    await client.post_metrics(topgg.Metrics.discord_server(member_count=1))
+    with pytest.raises(ValueError, match=r'^Invalid since timestamp\.$'):
+      await client.get_votes(since=datetime.now(UTC) + timedelta(hours=1))
 
-    metrics = topgg.Metrics.roblox_game(1)
+    votes = await client.get_votes(since=datetime.now(UTC) - timedelta(hours=1))
+    _test_attributes(votes)
 
-    await client.post_metrics(metrics)
-    await client.post_metrics({datetime.now(): metrics})
+    for vote in votes:
+      _test_attributes(vote)
 
-    assert request.call_count == 6
+    await client.get_votes(reference=votes)
+
+    assert request.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -260,64 +370,140 @@ async def test_Client_get_vote_works(
   monkeypatch: pytest.MonkeyPatch,
   client: topgg.Client,
 ) -> None:
-  if not TYPE_CHECKING:
-    with pytest.raises(
-      TypeError, match="^The specified user's source and/or ID's type is invalid.$"
-    ):
-      await client.get_vote(topgg.UserSource.DISCORD, None)
-
-  with RequestMock(200, 'OK', response='mocks/get_vote.json') as request:
+  with RequestMock(
+    200, 'OK', response='mocks/get_projects_id_votes_id.json'
+  ) as request:
     monkeypatch.setattr('aiohttp.ClientSession.request', request)
 
-    vote = await client.get_vote(topgg.UserSource.DISCORD, 661200758510977084)
+    vote = await client.get_vote(661200758510977084, topgg.UserSource.DISCORD)
 
     _test_attributes(vote)
 
-    vote = await client.get_vote(topgg.UserSource.TOPGG, 8226924471638491136)
-
-    _test_attributes(vote)
-
-    assert request.call_count == 2
-
-  with RequestMock(404, 'Not Found', response='mocks/404.json') as request:
-    monkeypatch.setattr('aiohttp.ClientSession.request', request)
-
-    vote = await client.get_vote(topgg.UserSource.DISCORD, 661200758510977084)
-
-    assert vote is None
-
-    request.assert_called_once()
-
-  with RequestMock(400, 'Bad Request', response={}) as request:
-    monkeypatch.setattr('aiohttp.ClientSession.request', request)
-
-    with pytest.raises(topgg.RequestError, match='^Got 400: ') as raises:
-      await client.get_vote(topgg.UserSource.DISCORD, 661200758510977084)
-
-    _test_attributes(raises.value)
     request.assert_called_once()
 
 
 @pytest.mark.asyncio
-async def test_Client_get_votes_works(
+async def test_Client_get_integrations_works(
   monkeypatch: pytest.MonkeyPatch,
   client: topgg.Client,
 ) -> None:
-  if not TYPE_CHECKING:
-    with pytest.raises(
-      TypeError, match=r'The specified earliest possible date\'s type is invalid.$'
-    ):
-      await client.get_votes(None)
-
-  with RequestMock(200, 'OK', response='mocks/get_votes.json') as request:
+  with RequestMock(
+    200, 'OK', response='mocks/get_projects_id_integrations.json'
+  ) as request:
     monkeypatch.setattr('aiohttp.ClientSession.request', request)
 
-    first_page = await client.get_votes(datetime(2026, 1, 1))
+    integrations = await client.get_integrations(364806029876555776)
+    _test_attributes(integrations)
 
-    _test_attributes(first_page)
+    for integration in integrations:
+      _test_attributes(integration)
 
-    second_page = await first_page.next()
+    request.assert_called_once()
 
-    _test_attributes(second_page)
 
-    assert request.call_count == 2
+@pytest.mark.asyncio
+async def test_Client_connect_integration_works(
+  monkeypatch: pytest.MonkeyPatch,
+  client: topgg.Client,
+) -> None:
+  with RequestMock(204, 'No Content', response={}) as request:
+    monkeypatch.setattr('aiohttp.ClientSession.request', request)
+
+    await client.connect_integration(364806029876555776, 364806029876555776)
+
+    request.assert_called_once()
+
+
+@pytest.mark.asyncio
+async def test_Client_disconnect_integration_works(
+  monkeypatch: pytest.MonkeyPatch,
+  client: topgg.Client,
+) -> None:
+  with RequestMock(204, 'No Content', response={}) as request:
+    monkeypatch.setattr('aiohttp.ClientSession.request', request)
+
+    await client.disconnect_integration(364806029876555776, 364806029876555776)
+
+    request.assert_called_once()
+
+
+@pytest.mark.asyncio
+async def test_Client_get_webhooks_works(
+  monkeypatch: pytest.MonkeyPatch,
+  client: topgg.Client,
+) -> None:
+  with RequestMock(
+    200, 'OK', response='mocks/get_projects_id_webhooks.json'
+  ) as request:
+    monkeypatch.setattr('aiohttp.ClientSession.request', request)
+
+    webhooks = await client.get_webhooks(364806029876555776)
+    _test_attributes(webhooks)
+
+    for webhook in webhooks:
+      _test_attributes(webhook)
+
+    request.assert_called_once()
+
+
+@pytest.mark.asyncio
+async def test_Client_create_webhook_works(
+  monkeypatch: pytest.MonkeyPatch,
+  client: topgg.Client,
+) -> None:
+  with RequestMock(
+    200, 'OK', response='mocks/post_projects_id_webhooks.json'
+  ) as request:
+    monkeypatch.setattr('aiohttp.ClientSession.request', request)
+
+    webhook = topgg.BaseWebhook(
+      label='test webhook', url='http://localhost:3000/webhooks'
+    )
+    _test_attributes(webhook)
+
+    created_webhook = await client.create_webhook(364806029876555776, webhook)
+    _test_attributes(created_webhook)
+
+    request.assert_called_once()
+
+
+@pytest.mark.asyncio
+async def test_Client_delete_webhook_works(
+  monkeypatch: pytest.MonkeyPatch,
+  client: topgg.Client,
+) -> None:
+  with RequestMock(204, 'No Content', response={}) as request:
+    monkeypatch.setattr('aiohttp.ClientSession.request', request)
+
+    await client.delete_webhook(364806029876555776, 364806029876555776)
+
+    request.assert_called_once()
+
+
+@pytest.mark.asyncio
+async def test_Client_rotate_webhook_secret_works(
+  monkeypatch: pytest.MonkeyPatch,
+  client: topgg.Client,
+) -> None:
+  with RequestMock(
+    200, 'OK', response='mocks/post_projects_id_webhooks_id_rotate.json'
+  ) as request:
+    monkeypatch.setattr('aiohttp.ClientSession.request', request)
+
+    secret = await client.rotate_webhook_secret(364806029876555776, 364806029876555776)
+
+    assert isinstance(secret, str) and len(secret) > 0
+    request.assert_called_once()
+
+
+@pytest.mark.asyncio
+async def test_Client_test_webhook_works(
+  monkeypatch: pytest.MonkeyPatch,
+  client: topgg.Client,
+) -> None:
+  with RequestMock(204, 'No Content', response={}) as request:
+    monkeypatch.setattr('aiohttp.ClientSession.request', request)
+
+    await client.test_webhook(364806029876555776, 364806029876555776)
+
+    request.assert_called_once()

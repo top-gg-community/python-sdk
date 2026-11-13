@@ -1,0 +1,12 @@
+{
+  "cursor": "<cursor-token>",
+  "data": [
+    {
+      "user_id": "1234567890",
+      "platform_id": "1234567890",
+      "weight": 1,
+      "created_at": "2026-01-28T02:19:19.145733Z",
+      "expires_at": "2026-01-28T14:19:19.145733Z"
+    }
+  ]
+}
