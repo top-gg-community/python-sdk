@@ -194,7 +194,7 @@ class BaseClient(ABC):
     """
     Fetches a project associated with the current token.
 
-    :param id: The project's Top.gg ID.
+    :param id: The project's Top.gg ID. This parameter can be safely omitted in :class:`.Client`.
     :type id: :py:class:`int` | :py:class:`str`
 
     :exception Error: The client is already closed.
@@ -213,7 +213,7 @@ class BaseClient(ABC):
     """
     Updates the headline and/or page content for a project. Both fields are locale-keyed, so you can set content for multiple languages in a single request.
 
-    :param id: The project's Top.gg ID.
+    :param id: The project's Top.gg ID. This parameter can be safely omitted in :class:`.Client`.
     :type id: :py:class:`int` | :py:class:`str`
     :param headline: A map of locales to headline strings. Each headline must be between 3 and 140 characters.
     :type headline: :class:`.LocaleMap`
@@ -241,7 +241,7 @@ class BaseClient(ABC):
     """
     Creates a new announcement for a project. Announcements appear on a project's page and can be used to notify users about updates, new features, or other news.
 
-    :param id: The project's Top.gg ID.
+    :param id: The project's Top.gg ID. This parameter can be safely omitted in :class:`.Client`.
     :type id: :py:class:`int` | :py:class:`str`
     :param title: The announcement's title.
     :type title: :py:class:`str`
@@ -271,7 +271,7 @@ class BaseClient(ABC):
     """
     Submits a single metrics payload for a project. Use this to push fresh numbers after an event such as joining or leaving a guild player connecting.
 
-    :param id: The project's Top.gg ID.
+    :param id: The project's Top.gg ID. This parameter can be safely omitted in :class:`.Client`.
     :type id: :py:class:`int` | :py:class:`str`
     :param metrics: The metrics payload.
     :type metrics: :class:`.Metrics`
@@ -289,7 +289,7 @@ class BaseClient(ABC):
     r"""
     Submits up to 100 metrics entries in a single request.
 
-    :param id: The project's Top.gg ID.
+    :param id: The project's Top.gg ID. This parameter can be safely omitted in :class:`.Client`.
     :type id: :py:class:`int` | :py:class:`str`
     :param metrics: The metrics payloads.
     :type metrics: :class:`.TimestampedMetrics`\ [:class:`.Metrics`\ ]
@@ -311,7 +311,7 @@ class BaseClient(ABC):
     r"""
     Overwrites the list of slash command definitions for a bot project on Top.gg. This is only applicable to bot-type projects on the discord platform.
 
-    :param id: The project's Top.gg ID.
+    :param id: The project's Top.gg ID. This parameter can be safely omitted in :class:`.Client`.
     :type id: :py:class:`int` | :py:class:`str`
     :param commands: The array of slash commands in a JSON-stringified Discord API's application command structure format.
     :type commands: :py:class:`list`\ [:py:class:`dict`\ ]
@@ -333,7 +333,7 @@ class BaseClient(ABC):
     r"""
     Fetches a cursor-paginated list of votes for a project, ordered by creation date (oldest first within each page.)
 
-    :param id: The project's Top.gg ID.
+    :param id: The project's Top.gg ID. This parameter can be safely omitted in :class:`.Client`.
     :type id: :py:class:`int` | :py:class:`str`
     :param since: The creation date frame of reference. Defaults to :py:obj:`None`.
     :type since: :py:class:`~datetime.datetime` | :py:obj:`None`
@@ -375,7 +375,7 @@ class BaseClient(ABC):
     """
     Fetches the most recent vote for a specific user.
 
-    :param id: The project's Top.gg ID.
+    :param id: The project's Top.gg ID. This parameter can be safely omitted in :class:`.Client`.
     :type id: :py:class:`int` | :py:class:`str`
     :param user_id: The ID of the user to look up. The expected format depends on the source parameter.
     :type user_id: :py:class:`int` | :py:class:`str`
