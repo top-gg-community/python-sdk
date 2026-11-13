@@ -28,16 +28,16 @@ Models reference
 .. autoclass:: topgg.models.Metrics()
    :members:
 
-.. autoclass:: topgg.models.DiscordBotMetrics()
+.. autoclass:: topgg.models.DiscordBotMetrics
    :members:
 
-.. autoclass:: topgg.models.DiscordServerMetrics()
+.. autoclass:: topgg.models.DiscordServerMetrics
    :members:
 
-.. autoclass:: topgg.models.RobloxGameMetrics()
+.. autoclass:: topgg.models.RobloxGameMetrics
    :members:
 
-.. autoclass:: topgg.models.TimestampedMetrics()
+.. autoclass:: topgg.models.TimestampedMetrics
    :members:
 
 .. autoclass:: topgg.models.PartialVote()
@@ -73,7 +73,7 @@ Models reference
    :inherited-members:
    :members:
 
-.. autoclass:: topgg.models.ProjectSubmission()
+.. autoclass:: topgg.models.ProjectSubmission
    :members:
 
 .. autoclass:: topgg.models.Paginated()
