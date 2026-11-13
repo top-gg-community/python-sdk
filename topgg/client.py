@@ -165,18 +165,18 @@ class BaseClient(ABC):
   async def get_projects(
     self, reference: Paginated[PartialProject] | None = None
   ) -> Paginated[PartialProject]:
-    """
+    r"""
     Fetches the projects the current credential covers.
 
     :param reference: The previously returned paginated list as a starting reference. Defaults to :py:obj:`None`.
-    :type reference: :class:`.Paginated`[:class:`.PartialProject`] | :py:obj:`None`
+    :type reference: :class:`.Paginated`\ [:class:`.PartialProject`\ ] | :py:obj:`None`
 
     :exception Error: The client is already closed.
     :exception RequestError: The client received a non-favorable response from the API.
     :exception Ratelimited: The client is ratelimited from sending more requests.
 
     :returns: The projects the current credential covers.
-    :rtype: :class:`.Paginated`[:class:`.PartialProject`]
+    :rtype: :class:`.Paginated`\ [:class:`.PartialProject`\ ]
     """
 
     params = {}
@@ -202,7 +202,7 @@ class BaseClient(ABC):
     :exception Ratelimited: The client is ratelimited from sending more requests.
 
     :returns: A project associated with the current token.
-    :rtype: :class:`.Project`
+    :rtype: :class:`~.models.Project`
     """
 
     return Project(await self._request('GET', f'/projects/{id}'))
@@ -286,13 +286,13 @@ class BaseClient(ABC):
   async def post_timestamped_metrics[M: Metrics](
     self, id: int | str, metrics: TimestampedMetrics[M]
   ) -> None:
-    """
+    r"""
     Submits up to 100 metrics entries in a single request.
 
     :param id: The project's Top.gg ID.
     :type id: :py:class:`int` | :py:class:`str`
     :param metrics: The metrics payloads.
-    :type metrics: :class:`.TimestampedMetrics`[:class:`.Metrics`]
+    :type metrics: :class:`.TimestampedMetrics`\ [:class:`.Metrics`\ ]
 
     :exception ValueError: The metrics entries length does not match the required threshold.
     :exception Error: The client is already closed.
@@ -308,13 +308,13 @@ class BaseClient(ABC):
     )
 
   async def post_commands(self, id: int | str, commands: list[dict]) -> None:
-    """
+    r"""
     Overwrites the list of slash command definitions for a bot project on Top.gg. This is only applicable to bot-type projects on the discord platform.
 
     :param id: The project's Top.gg ID.
     :type id: :py:class:`int` | :py:class:`str`
     :param commands: The array of slash commands in a JSON-stringified Discord API's application command structure format.
-    :type commands: :py:class:`list`[:py:class:`dict`]
+    :type commands: :py:class:`list`\ [:py:class:`dict`\ ]
 
     :exception Error: The client is already closed.
     :exception RequestError: The client received a non-favorable response from the API.
@@ -330,15 +330,15 @@ class BaseClient(ABC):
     since: datetime | None = None,
     reference: Paginated[Vote] | None = None,
   ) -> Paginated[Vote]:
-    """
+    r"""
     Fetches a cursor-paginated list of votes for a project, ordered by creation date (oldest first within each page.)
 
     :param id: The project's Top.gg ID.
     :type id: :py:class:`int` | :py:class:`str`
     :param since: The creation date frame of reference. Defaults to :py:obj:`None`.
-    :type since: :py:class:`~.datetime.datetime` | :py:obj:`None`
+    :type since: :py:class:`~datetime.datetime` | :py:obj:`None`
     :param reference: The previously returned paginated list as a starting reference. Defaults to :py:obj:`None`.
-    :type reference: :class:`.Paginated`[:class:`.Vote`] | :py:obj:`None`
+    :type reference: :class:`.Paginated`\ [:class:`.Vote`\ ] | :py:obj:`None`
 
     :exception ValueError: Missing required arguments or the creation date frame of reference is invalid.
     :exception Error: The client is already closed.
@@ -346,7 +346,7 @@ class BaseClient(ABC):
     :exception Ratelimited: The client is ratelimited from sending more requests.
 
     :returns: A cursor-paginated list of votes for a project, ordered by creation date (oldest first within each page.)
-    :rtype: :class:`.Paginated`[:class:`.Vote`]
+    :rtype: :class:`.Paginated`\ [:class:`.Vote`\ ]
     """
 
     path = f'/projects/{id}/votes'
@@ -397,7 +397,7 @@ class BaseClient(ABC):
     )
 
   async def get_integrations(self, project_id: int | str) -> list[Integration]:
-    """
+    r"""
     Fetches the integrations available for a project and whether each one is connected.
 
     :param project_id: The project's Top.gg ID.
@@ -408,7 +408,7 @@ class BaseClient(ABC):
     :exception Ratelimited: The client is ratelimited from sending more requests.
 
     :returns: The integrations available for a project and whether each one is connected.
-    :rtype: :py:class:`list`[:class:`.Integration`]
+    :rtype: :py:class:`list`\ [:class:`.Integration`\ ]
     """
 
     return [
@@ -457,7 +457,7 @@ class BaseClient(ABC):
     )
 
   async def get_webhooks(self, id: int | str) -> list[Webhook]:
-    """
+    r"""
     Fetches the webhooks the application created on the project.
 
     :param id: The project's Top.gg ID.
@@ -468,7 +468,7 @@ class BaseClient(ABC):
     :exception Ratelimited: The client is ratelimited from sending more requests.
 
     :returns: The webhooks the application created on the project.
-    :rtype: :py:class:`list`[:class:`.Webhook`]
+    :rtype: :py:class:`list`\ [:class:`.Webhook`\ ]
     """
 
     return [
@@ -601,7 +601,7 @@ class Client(BaseClient):
     :exception Ratelimited: The client is ratelimited from sending more requests.
 
     :returns: A project associated with the current token.
-    :rtype: :class:`.Project`
+    :rtype: :class:`~topgg.models.Project`
     """
 
     return await super().get_project('@me')
@@ -663,11 +663,11 @@ class Client(BaseClient):
   async def post_timestamped_metrics[M: Metrics](
     self, metrics: TimestampedMetrics[M], *_, **__
   ) -> None:
-    """
+    r"""
     Submits up to 100 metrics entries in a single request.
 
     :param metrics: The metrics payloads.
-    :type metrics: :class:`.TimestampedMetrics`[:class:`.Metrics`]
+    :type metrics: :class:`.TimestampedMetrics`\ [:class:`.Metrics`\ ]
 
     :exception ValueError: The metrics entries length does not match the required threshold.
     :exception Error: The client is already closed.
@@ -678,11 +678,11 @@ class Client(BaseClient):
     await super().post_timestamped_metrics('@me', metrics)
 
   async def post_commands(self, commands: list[dict], *_, **__) -> None:
-    """
+    r"""
     Overwrites the list of slash command definitions for a bot project on Top.gg. This is only applicable to bot-type projects on the discord platform.
 
     :param commands: The array of slash commands in a JSON-stringified Discord API's application command structure format.
-    :type commands: :py:class:`list`[:py:class:`dict`]
+    :type commands: :py:class:`list`\ [:py:class:`dict`\ ]
 
     :exception Error: The client is already closed.
     :exception RequestError: The client received a non-favorable response from the API.
@@ -692,13 +692,13 @@ class Client(BaseClient):
     await super().post_commands('@me', commands)
 
   async def get_votes(self, *args, **kwargs) -> Paginated[Vote]:
-    """
+    r"""
     Fetches a cursor-paginated list of votes for a project, ordered by creation date (oldest first within each page.)
 
     :param since: The creation date frame of reference. Defaults to :py:obj:`None`.
-    :type since: :py:class:`~.datetime.datetime` | :py:obj:`None`
+    :type since: :py:class:`~datetime.datetime` | :py:obj:`None`
     :param reference: The previously returned paginated list as a starting reference. Defaults to :py:obj:`None`.
-    :type reference: :class:`.Paginated`[:class:`.Vote`] | :py:obj:`None`
+    :type reference: :class:`.Paginated`\ [:class:`.Vote`\ ] | :py:obj:`None`
 
     :exception ValueError: Missing required arguments or the creation date frame of reference is invalid.
     :exception Error: The client is already closed.
@@ -706,7 +706,7 @@ class Client(BaseClient):
     :exception Ratelimited: The client is ratelimited from sending more requests.
 
     :returns: A cursor-paginated list of votes for a project, ordered by creation date (oldest first within each page.)
-    :rtype: :class:`.Paginated`[:class:`.Vote`]
+    :rtype: :class:`.Paginated`\ [:class:`.Vote`\ ]
     """
 
     return await super().get_votes('@me', *args, **kwargs)
@@ -987,13 +987,13 @@ class Oauth2Client(BaseClient):
     :exception Ratelimited: The client is ratelimited from sending more requests.
 
     :returns: The user who authorized the application.
-    :rtype: :class:`.User`
+    :rtype: :class:`~topgg.models.User`
     """
 
     return User(await self._request('GET', '/users/@me'))
 
   async def get_authorized_user_projects(self) -> list[UserProject]:
-    """
+    r"""
     Fetches the projects owned by the user who authorized the application.
 
     :exception Error: The client is already closed.
@@ -1001,7 +1001,7 @@ class Oauth2Client(BaseClient):
     :exception Ratelimited: The client is ratelimited from sending more requests.
 
     :returns: The projects owned by the user who authorized the application.
-    :rtype: :py:class:`list`[:class:`.UserProject`]
+    :rtype: :py:class:`list`\ [:class:`.UserProject`\ ]
     """
 
     return [

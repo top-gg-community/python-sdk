@@ -1,11 +1,11 @@
 prune .github
+prune .pytest_cache
 prune .ruff_cache
 prune docs
 prune tests
 exclude .gitignore
 exclude .readthedocs.yml
 exclude ruff.toml
-exclude pytest.ini
 exclude LICENSE
 exclude ISSUE_TEMPLATE.md
 exclude PULL_REQUEST_TEMPLATE.md

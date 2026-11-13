@@ -3,7 +3,7 @@
 # SPDX-FileCopyrightText: 2024-2026 null8626 & Top.gg
 
 from ..version import VERSION
-from .helpers import parse, verify
+from .helpers import Payload, parse, verify
 from .models import (
   IntegrationCreate,
   IntegrationDelete,
@@ -24,6 +24,7 @@ __version__ = VERSION
 __all__ = (
   'IntegrationCreate',
   'IntegrationDelete',
+  'Payload',
   'Project',
   'Test',
   'User',

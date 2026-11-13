@@ -200,11 +200,11 @@ class Locale(Enum):
 
 
 class LocaleMap:
-  """
+  r"""
   A locale-text map.
 
   :param data: The data. Defaults to :py:obj:`None`.
-  :type data: :py:class:`dict`[:class:`.Locale`, :py:class:`str`] | :py:obj:`None`
+  :type data: :py:class:`dict`\ [:class:`~topgg.models.Locale`, :py:class:`str`\ ] | :py:obj:`None`
   """
 
   __slots__: tuple[str, ...] = ('_json',)
@@ -282,7 +282,7 @@ class DiscordBotMetrics(Metrics):
   :param shard_count: The bot's shard count.
   :type shard_count: :class:`int`
 
-  :exception TypeError: ``server_count`` is not a :class:`int` or ``shard_count`` is not a :class:`int`.
+  :exception TypeError: ``server_count`` is not an :class:`int` or ``shard_count`` is not an :class:`int`.
   :exception ValueError: The ``server_count`` and/or ``shard_count`` must be specified.
   """
 
@@ -327,7 +327,7 @@ class DiscordServerMetrics(Metrics):
   :param online_member_count: The server's shard count.
   :type online_member_count: :class:`int`
 
-  :exception TypeError: ``online_member_count`` is not a :class:`int` or ``online_member_count`` is not a :class:`int`.
+  :exception TypeError: ``online_member_count`` is not an :class:`int` or ``online_member_count`` is not an :class:`int`.
   :exception ValueError: The ``online_member_count`` and/or ``online_member_count`` must be specified.
   """
 
@@ -375,7 +375,7 @@ class RobloxGameMetrics(Metrics):
   :param player_count: The game's current player count.
   :type player_count: :class:`int`
 
-  :exception TypeError: ``player_count`` is not a :class:`int`.
+  :exception TypeError: ``player_count`` is not an :class:`int`.
   """
 
   __slots__: tuple[str, ...] = ('player_count',)

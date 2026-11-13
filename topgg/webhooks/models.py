@@ -135,7 +135,7 @@ class IntegrationCreate:
   """The connection's Top.gg ID. Store this to track and delete."""
 
   webhook_secret: str
-  """The webhook secret (prefixed whs_) used to verify all future webhook."""
+  r"""The webhook secret (prefixed whs\_) used to verify all future webhook."""
 
   project: Project
   """The connection's project."""
