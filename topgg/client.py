@@ -6,7 +6,7 @@ import base64
 import hashlib
 import json
 import secrets
-from abc import abstractmethod
+from abc import ABC, abstractmethod
 from asyncio import Lock, Task, create_task, sleep
 from dataclasses import dataclass, field
 from datetime import UTC, datetime, timedelta
@@ -116,7 +116,7 @@ class HttpClient:
       await self._session.close()
 
 
-class BaseClient:
+class BaseClient(ABC):
   """
   A base API client.
 
