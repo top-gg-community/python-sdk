@@ -1,16 +1,16 @@
-from os import path
 import sys
+from os import path
 
 sys.path.insert(0, path.join(path.dirname(path.realpath(__file__)), '..'))
 
 
-from typing import AsyncGenerator
-import pytest_asyncio
+from collections.abc import AsyncGenerator
+
 import pytest
+import pytest_asyncio
+from util import RequestMock, _test_attributes
 
 import topgg
-
-from util import _test_attributes, RequestMock
 
 
 @pytest_asyncio.fixture

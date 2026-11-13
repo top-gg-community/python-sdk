@@ -1,19 +1,18 @@
-from datetime import datetime, UTC
-from os import path
 import hashlib
 import hmac
 import json
 import sys
+from datetime import UTC, datetime
+from os import path
 
 CURRENT_DIR = path.dirname(path.realpath(__file__))
 sys.path.insert(0, path.join(CURRENT_DIR, '..'))
 
 
 import pytest
+from util import _test_attributes
 
 import topgg
-
-from util import _test_attributes
 
 
 def test_webhooks_parse_works() -> None:

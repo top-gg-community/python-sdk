@@ -1,13 +1,14 @@
-from multidict import CIMultiDict, CIMultiDictProxy
-from typing import Any, TYPE_CHECKING
+import json
 from contextlib import nullcontext
 from inspect import getmembers
-from sys import stdout
-from yarl import URL
 from os import path
+from sys import stdout
+from typing import TYPE_CHECKING
+from unittest import mock
+
 import aiohttp
-import json
-import mock
+from multidict import CIMultiDict, CIMultiDictProxy
+from yarl import URL
 
 if TYPE_CHECKING:
   from io import TextIOWrapper
@@ -34,9 +35,7 @@ def is_local(data: object) -> bool:
 
 def _test_attributes_inner(obj: object, indent_level: int) -> None:
   names = getattr(obj.__class__, '__slots__', ()) + tuple(
-    map(
-      lambda pair: pair[0], getmembers(obj.__class__, lambda o: isinstance(o, property))
-    )
+    pair[0] for pair in getmembers(obj.__class__, lambda o: isinstance(o, property))
   )
 
   for name in names:
@@ -107,8 +106,8 @@ def _test_attributes(obj: object) -> None:
 
 class RequestMock:
   __slots__: tuple[str, ...] = (
-    '__mock_response',
     '__mock_json_response',
+    '__mock_response',
   )
 
   __mock_response: mock.Mock
@@ -161,7 +160,7 @@ class RequestMock:
   def __enter__(self) -> mock.Mock:
     return mock.Mock(return_value=nullcontext(self.__mock_response))
 
-  def __exit__(self, *_: Any) -> None:
+  def __exit__(self, *_: object) -> None:
     if self.__mock_json_response is not None:
       self.__mock_json_response.close()
       self.__mock_json_response = None
