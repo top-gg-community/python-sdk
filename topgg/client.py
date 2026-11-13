@@ -69,7 +69,9 @@ class HttpClient:
     if self._session.closed:
       raise Error('Client session is already closed.')
 
-    headers['User-Agent'] = (f'topggpy (https://github.com/top-gg-community/python-sdk {VERSION}) Python/')
+    headers['User-Agent'] = (
+      f'topggpy (https://github.com/top-gg-community/python-sdk {VERSION}) Python/'
+    )
 
     kwargs = {}
 
@@ -92,7 +94,11 @@ class HttpClient:
         try:
           retry_after = float(resp.headers.get('Retry-After', 0))
           output = await resp.json()
-        except (ClientResponseError, ValueError, json.decoder.JSONDecodeError):  # pragma: nocover
+        except (
+          ClientResponseError,
+          ValueError,
+          json.decoder.JSONDecodeError,
+        ):  # pragma: nocover
           pass
 
         resp.raise_for_status()
@@ -130,7 +136,9 @@ class BaseClient(ABC):
 
   _http: HttpClient
 
-  def __init__(self, *, session: ClientSession | None = None, http: HttpClient | None = None):
+  def __init__(
+    self, *, session: ClientSession | None = None, http: HttpClient | None = None
+  ):
     self._http = http or HttpClient(session)
 
   def __repr__(self) -> str:
@@ -405,10 +413,14 @@ class BaseClient(ABC):
 
     return [
       Integration(integration)
-      for integration in await self._request('GET', f'/projects/{project_id}/integrations')
+      for integration in await self._request(
+        'GET', f'/projects/{project_id}/integrations'
+      )
     ]
 
-  async def connect_integration(self, project_id: int | str, integration_id: int | str) -> None:
+  async def connect_integration(
+    self, project_id: int | str, integration_id: int | str
+  ) -> None:
     """
     Connects an integration to the project. Top.gg runs the integration handshake and starts delivering events to it.
 
@@ -440,7 +452,9 @@ class BaseClient(ABC):
     :exception Ratelimited: The client is ratelimited from sending more requests.
     """
 
-    await self._request('DELETE', f'/projects/{project_id}/integrations/{integration_id}')
+    await self._request(
+      'DELETE', f'/projects/{project_id}/integrations/{integration_id}'
+    )
 
   async def get_webhooks(self, id: int | str) -> list[Webhook]:
     """
@@ -479,11 +493,13 @@ class BaseClient(ABC):
     :rtype: :class:`.Webhook`
     """
 
-    return Webhook(await self._request(
-      'POST',
-      f'/projects/{id}/webhooks',
-      body={'label': webhook.label, 'url': webhook.url},
-    ))
+    return Webhook(
+      await self._request(
+        'POST',
+        f'/projects/{id}/webhooks',
+        body={'label': webhook.label, 'url': webhook.url},
+      )
+    )
 
   async def delete_webhook(self, project_id: int | str, webhook_id: int | str) -> None:
     """
@@ -501,7 +517,9 @@ class BaseClient(ABC):
 
     await self._request('DELETE', f'/projects/{project_id}/webhooks/{webhook_id}')
 
-  async def rotate_webhook_secret(self, project_id: int | str, webhook_id: int | str) -> str:
+  async def rotate_webhook_secret(
+    self, project_id: int | str, webhook_id: int | str
+  ) -> str:
     """
     Replaces the signing secret of a webhook the application created. The previous secret stops working immediately.
 
@@ -519,7 +537,9 @@ class BaseClient(ABC):
     """
 
     return (
-      await self._request('POST', f'/projects/{project_id}/webhooks/{webhook_id}/rotate')
+      await self._request(
+        'POST', f'/projects/{project_id}/webhooks/{webhook_id}/rotate'
+      )
     )['secret']
 
   async def test_webhook(self, project_id: int | str, webhook_id: int | str) -> None:
@@ -840,7 +860,9 @@ class Oauth2:
 
     return Oauth2Client(self, session)
 
-  def new_url(self, state: str | None = None, code_verifier: str | None = None) -> Oauth2URL:
+  def new_url(
+    self, state: str | None = None, code_verifier: str | None = None
+  ) -> Oauth2URL:
     """
     Creates an oauth2 URL.
 
@@ -856,9 +878,7 @@ class Oauth2:
     state = state or secrets.token_hex(64)
     code_verifier = code_verifier or secrets.token_hex(64)
     code_challenge = (
-      base64.urlsafe_b64encode(
-        hashlib.sha256(code_verifier.encode('ascii')).digest()
-      )
+      base64.urlsafe_b64encode(hashlib.sha256(code_verifier.encode('ascii')).digest())
       .decode('ascii')
       .rstrip('=')
     )

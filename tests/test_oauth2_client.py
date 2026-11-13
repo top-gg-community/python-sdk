@@ -15,20 +15,25 @@ from util import _test_attributes, RequestMock
 
 @pytest_asyncio.fixture
 async def oauth2() -> AsyncGenerator[topgg.Oauth2, None]:
-  manager = topgg.Oauth2('', '', 'http://localhost:3000/topgg/oauth2', [
-    'user.identify',
-    'user.projects.read',
-    'user.projects.write',
-    'project.information.read',
-    'project.information.write',
-    'project.votes.read',
-    'project.metrics.write',
-    'project.announcements.write',
-    'project.webhooks.read',
-    'project.webhooks.write',
-    'project.integrations.read',
-    'project.integrations.write'
-  ])
+  manager = topgg.Oauth2(
+    '',
+    '',
+    'http://localhost:3000/topgg/oauth2',
+    [
+      'user.identify',
+      'user.projects.read',
+      'user.projects.write',
+      'project.information.read',
+      'project.information.write',
+      'project.votes.read',
+      'project.metrics.write',
+      'project.announcements.write',
+      'project.webhooks.read',
+      'project.webhooks.write',
+      'project.integrations.read',
+      'project.integrations.write',
+    ],
+  )
 
   yield manager
   await manager.close()
@@ -111,24 +116,28 @@ async def test_Oauth2_submit_project_works(
   with RequestMock(204, 'No Content', response={}) as request:
     monkeypatch.setattr('aiohttp.ClientSession.request', request)
 
-    with pytest.raises(ValueError, match=r'^Headline length is outside of the accepted threshold\.$'):
+    with pytest.raises(
+      ValueError, match=r'^Headline length is outside of the accepted threshold\.$'
+    ):
       submission = topgg.ProjectSubmission(
         platform=topgg.Platform.DISCORD,
         type=topgg.ProjectType.BOT,
         platform_id=1557409617225457727,
         headline='hi',
-        page_content='hello this is a page content' * 20
+        page_content='hello this is a page content' * 20,
       )
 
       await client.submit_project(submission)
 
-    with pytest.raises(ValueError, match=r'^Page content length is outside of the accepted threshold\.$'):
+    with pytest.raises(
+      ValueError, match=r'^Page content length is outside of the accepted threshold\.$'
+    ):
       submission = topgg.ProjectSubmission(
         platform=topgg.Platform.DISCORD,
         type=topgg.ProjectType.BOT,
         platform_id=1557409617225457727,
         headline='hello this is a headline',
-        page_content='hello'
+        page_content='hello',
       )
 
       await client.submit_project(submission)
@@ -138,7 +147,7 @@ async def test_Oauth2_submit_project_works(
       type=topgg.ProjectType.BOT,
       platform_id=1557409617225457727,
       headline='hello this is a headline',
-      page_content='hello this is a page content' * 20
+      page_content='hello this is a page content' * 20,
     )
     _test_attributes(submission)
 

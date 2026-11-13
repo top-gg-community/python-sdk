@@ -291,7 +291,9 @@ class DiscordBotMetrics(Metrics):
   server_count: int | None
   shard_count: int | None
 
-  def __init__(self, *, server_count: int | None = None, shard_count: int | None = None):
+  def __init__(
+    self, *, server_count: int | None = None, shard_count: int | None = None
+  ):
     if server_count is None and shard_count is None:
       raise ValueError('The server count and/or shard count must be specified.')
     elif server_count is not None and not isinstance(server_count, int):
@@ -334,9 +336,16 @@ class DiscordServerMetrics(Metrics):
   total_member_count: int | None
   online_member_count: int | None
 
-  def __init__(self, *, total_member_count: int | None = None, online_member_count: int | None = None):
+  def __init__(
+    self,
+    *,
+    total_member_count: int | None = None,
+    online_member_count: int | None = None,
+  ):
     if total_member_count is None and online_member_count is None:
-      raise ValueError('The total member count and/or online member count must be specified.')
+      raise ValueError(
+        'The total member count and/or online member count must be specified.'
+      )
     elif total_member_count is not None and not isinstance(total_member_count, int):
       raise TypeError('The specified total member count must be an integer.')
     elif online_member_count is not None and not isinstance(online_member_count, int):

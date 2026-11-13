@@ -111,56 +111,62 @@ async def test_Client_edit_project_works(
   with RequestMock(204, 'No Content', response={}) as request:
     monkeypatch.setattr('aiohttp.ClientSession.request', request)
 
-    with pytest.raises(ValueError, match=r'^A LocaleMap text length is below the minimum threshold\.$'):
-      headline = topgg.LocaleMap({
-        topgg.Locale.ENGLISH: 'hi',
-        topgg.Locale.GERMAN: 'hi'
-      })
+    with pytest.raises(
+      ValueError, match=r'^A LocaleMap text length is below the minimum threshold\.$'
+    ):
+      headline = topgg.LocaleMap(
+        {topgg.Locale.ENGLISH: 'hi', topgg.Locale.GERMAN: 'hi'}
+      )
 
-      page_content = topgg.LocaleMap({
-        topgg.Locale.ENGLISH: 'hi',
-        topgg.Locale.GERMAN: 'hi'
-      })
+      page_content = topgg.LocaleMap(
+        {topgg.Locale.ENGLISH: 'hi', topgg.Locale.GERMAN: 'hi'}
+      )
 
       await client.edit_project(headline, page_content)
 
     if not TYPE_CHECKING:
       with pytest.raises(TypeError, match=r'^The specified locale must be a Locale\.$'):
-        headline = topgg.LocaleMap({
-          'ENGLISH': 'hello this is a headline',
-          'GERMAN': 'hallo das ist eine Überschrift'
-        })
+        headline = topgg.LocaleMap(
+          {
+            'ENGLISH': 'hello this is a headline',
+            'GERMAN': 'hallo das ist eine Überschrift',
+          }
+        )
 
-        page_content = topgg.LocaleMap({
-          'ENGLISH': 'hello this is a page content' * 20,
-          'GERMAN': 'hallo dies ist ein seiteninhalt' * 20
-        })
+        page_content = topgg.LocaleMap(
+          {
+            'ENGLISH': 'hello this is a page content' * 20,
+            'GERMAN': 'hallo dies ist ein seiteninhalt' * 20,
+          }
+        )
 
         await client.edit_project(headline, page_content)
 
       with pytest.raises(TypeError, match=r'^The specified text must be a string\.$'):
-        headline = topgg.LocaleMap({
-          topgg.Locale.ENGLISH: [None] * 100,
-          topgg.Locale.GERMAN: [None] * 100
-        })
+        headline = topgg.LocaleMap(
+          {topgg.Locale.ENGLISH: [None] * 100, topgg.Locale.GERMAN: [None] * 100}
+        )
 
-        page_content = topgg.LocaleMap({
-          topgg.Locale.ENGLISH: [None] * 100,
-          topgg.Locale.GERMAN: [None] * 100
-        })
+        page_content = topgg.LocaleMap(
+          {topgg.Locale.ENGLISH: [None] * 100, topgg.Locale.GERMAN: [None] * 100}
+        )
 
         await client.edit_project(headline, page_content)
 
-    headline = topgg.LocaleMap({
-      topgg.Locale.ENGLISH: 'hello this is a headline',
-      topgg.Locale.GERMAN: 'hallo das ist eine Überschrift'
-    })
+    headline = topgg.LocaleMap(
+      {
+        topgg.Locale.ENGLISH: 'hello this is a headline',
+        topgg.Locale.GERMAN: 'hallo das ist eine Überschrift',
+      }
+    )
     _test_attributes(headline)
 
-    page_content = topgg.LocaleMap({
-      topgg.Locale.ENGLISH: 'hello this is a page content' * 20,
-      topgg.Locale.GERMAN: 'hallo dies ist ein seiteninhalt' * 20
-    })
+    page_content = topgg.LocaleMap(
+      {
+        topgg.Locale.ENGLISH: 'hello this is a page content' * 20,
+        topgg.Locale.GERMAN: 'hallo dies ist ein seiteninhalt' * 20,
+      }
+    )
 
     await client.edit_project(headline, page_content)
 
@@ -175,13 +181,27 @@ async def test_Client_post_announcement_works(
   with RequestMock(204, 'No Content', response={}) as request:
     monkeypatch.setattr('aiohttp.ClientSession.request', request)
 
-    with pytest.raises(ValueError, match=r'^Title length is outside of the accepted threshold\.$'):
-      await client.post_announcement('', 'Lorem ipsum' * 25, topgg.AnnouncementCategory.ANNOUNCEMENT)
+    with pytest.raises(
+      ValueError, match=r'^Title length is outside of the accepted threshold\.$'
+    ):
+      await client.post_announcement(
+        '', 'Lorem ipsum' * 25, topgg.AnnouncementCategory.ANNOUNCEMENT
+      )
 
-    with pytest.raises(ValueError, match=r'^Content length is outside of the accepted threshold\.$'):
-      await client.post_announcement('My project announcement', 'Lorem ipsum', topgg.AnnouncementCategory.ANNOUNCEMENT)
+    with pytest.raises(
+      ValueError, match=r'^Content length is outside of the accepted threshold\.$'
+    ):
+      await client.post_announcement(
+        'My project announcement',
+        'Lorem ipsum',
+        topgg.AnnouncementCategory.ANNOUNCEMENT,
+      )
 
-    await client.post_announcement('My project announcement', 'Lorem ipsum' * 25, topgg.AnnouncementCategory.ANNOUNCEMENT)
+    await client.post_announcement(
+      'My project announcement',
+      'Lorem ipsum' * 25,
+      topgg.AnnouncementCategory.ANNOUNCEMENT,
+    )
 
     request.assert_called_once()
 
@@ -194,14 +214,20 @@ async def test_Client_post_metrics_works(
   with RequestMock(204, 'No Content', response={}) as request:
     monkeypatch.setattr('aiohttp.ClientSession.request', request)
 
-    with pytest.raises(ValueError, match=r'^The server count and\/or shard count must be specified\.$'):
+    with pytest.raises(
+      ValueError, match=r'^The server count and\/or shard count must be specified\.$'
+    ):
       await client.post_metrics(topgg.DiscordBotMetrics())
 
     if not TYPE_CHECKING:
-      with pytest.raises(TypeError, match=r'^The specified server count must be an integer\.$'):
+      with pytest.raises(
+        TypeError, match=r'^The specified server count must be an integer\.$'
+      ):
         await client.post_metrics(topgg.DiscordBotMetrics(server_count=''))
 
-      with pytest.raises(TypeError, match=r'^The specified shard count must be an integer\.$'):
+      with pytest.raises(
+        TypeError, match=r'^The specified shard count must be an integer\.$'
+      ):
         await client.post_metrics(topgg.DiscordBotMetrics(shard_count=''))
 
     metrics = topgg.DiscordBotMetrics(server_count=5)
@@ -210,14 +236,21 @@ async def test_Client_post_metrics_works(
     await client.post_metrics(metrics)
     await client.post_metrics(topgg.DiscordBotMetrics(shard_count=5))
 
-    with pytest.raises(ValueError, match=r'^The total member count and\/or online member count must be specified\.$'):
+    with pytest.raises(
+      ValueError,
+      match=r'^The total member count and\/or online member count must be specified\.$',
+    ):
       await client.post_metrics(topgg.DiscordServerMetrics())
 
     if not TYPE_CHECKING:
-      with pytest.raises(TypeError, match=r'^The specified total member count must be an integer\.$'):
+      with pytest.raises(
+        TypeError, match=r'^The specified total member count must be an integer\.$'
+      ):
         await client.post_metrics(topgg.DiscordServerMetrics(total_member_count=''))
 
-      with pytest.raises(TypeError, match=r'^The specified online member count must be an integer\.$'):
+      with pytest.raises(
+        TypeError, match=r'^The specified online member count must be an integer\.$'
+      ):
         await client.post_metrics(topgg.DiscordServerMetrics(online_member_count=''))
 
     metrics = topgg.DiscordServerMetrics(total_member_count=5)
@@ -227,7 +260,9 @@ async def test_Client_post_metrics_works(
     await client.post_metrics(topgg.DiscordServerMetrics(online_member_count=5))
 
     if not TYPE_CHECKING:
-      with pytest.raises(TypeError, match=r'^The specified player count must be an integer\.$'):
+      with pytest.raises(
+        TypeError, match=r'^The specified player count must be an integer\.$'
+      ):
         await client.post_metrics(topgg.RobloxGameMetrics(''))
 
     metrics = topgg.RobloxGameMetrics(player_count=5)
@@ -249,7 +284,9 @@ async def test_Client_post_timestamped_metrics_works(
     metrics = topgg.TimestampedMetrics[topgg.DiscordBotMetrics]()
     now = datetime.now(UTC)
 
-    with pytest.raises(ValueError, match=r'^Batch length is outside of the accepted threshold\.$'):
+    with pytest.raises(
+      ValueError, match=r'^Batch length is outside of the accepted threshold\.$'
+    ):
       await client.post_timestamped_metrics(metrics)
 
     metrics.add(now - timedelta(hours=3), topgg.DiscordBotMetrics(server_count=5))
@@ -259,10 +296,14 @@ async def test_Client_post_timestamped_metrics_works(
     _test_attributes(metrics)
 
     if not TYPE_CHECKING:
-      with pytest.raises(TypeError, match=r'^The specified timestamp must be a datetime\.$'):
+      with pytest.raises(
+        TypeError, match=r'^The specified timestamp must be a datetime\.$'
+      ):
         metrics.add(1, topgg.DiscordBotMetrics(server_count=7))
 
-      with pytest.raises(TypeError, match=r'^The specified metrics must be a child of Metrics\.$'):
+      with pytest.raises(
+        TypeError, match=r'^The specified metrics must be a child of Metrics\.$'
+      ):
         metrics.add(now - timedelta(hours=1), topgg.TimestampedMetrics())
 
     await client.post_timestamped_metrics(metrics)
@@ -281,7 +322,19 @@ async def test_Client_post_commands_works(
   with RequestMock(204, 'No Content', response={}) as request:
     monkeypatch.setattr('aiohttp.ClientSession.request', request)
 
-    await client.post_commands([{'id':'1','type':1,'application_id':'1','name':'test','description':'command description','default_member_permissions':'','version':'1'}])
+    await client.post_commands(
+      [
+        {
+          'id': '1',
+          'type': 1,
+          'application_id': '1',
+          'name': 'test',
+          'description': 'command description',
+          'default_member_permissions': '',
+          'version': '1',
+        }
+      ]
+    )
 
     request.assert_called_once()
 
@@ -316,7 +369,9 @@ async def test_Client_get_vote_works(
   monkeypatch: pytest.MonkeyPatch,
   client: topgg.Client,
 ) -> None:
-  with RequestMock(200, 'OK', response='mocks/get_projects_id_votes_id.json') as request:
+  with RequestMock(
+    200, 'OK', response='mocks/get_projects_id_votes_id.json'
+  ) as request:
     monkeypatch.setattr('aiohttp.ClientSession.request', request)
 
     vote = await client.get_vote(661200758510977084, topgg.UserSource.DISCORD)
@@ -331,7 +386,9 @@ async def test_Client_get_integrations_works(
   monkeypatch: pytest.MonkeyPatch,
   client: topgg.Client,
 ) -> None:
-  with RequestMock(200, 'OK', response='mocks/get_projects_id_integrations.json') as request:
+  with RequestMock(
+    200, 'OK', response='mocks/get_projects_id_integrations.json'
+  ) as request:
     monkeypatch.setattr('aiohttp.ClientSession.request', request)
 
     integrations = await client.get_integrations(364806029876555776)
@@ -374,7 +431,9 @@ async def test_Client_get_webhooks_works(
   monkeypatch: pytest.MonkeyPatch,
   client: topgg.Client,
 ) -> None:
-  with RequestMock(200, 'OK', response='mocks/get_projects_id_webhooks.json') as request:
+  with RequestMock(
+    200, 'OK', response='mocks/get_projects_id_webhooks.json'
+  ) as request:
     monkeypatch.setattr('aiohttp.ClientSession.request', request)
 
     webhooks = await client.get_webhooks(364806029876555776)
@@ -391,10 +450,14 @@ async def test_Client_create_webhook_works(
   monkeypatch: pytest.MonkeyPatch,
   client: topgg.Client,
 ) -> None:
-  with RequestMock(200, 'OK', response='mocks/post_projects_id_webhooks.json') as request:
+  with RequestMock(
+    200, 'OK', response='mocks/post_projects_id_webhooks.json'
+  ) as request:
     monkeypatch.setattr('aiohttp.ClientSession.request', request)
 
-    webhook = topgg.BaseWebhook(label='test webhook', url='http://localhost:3000/webhooks')
+    webhook = topgg.BaseWebhook(
+      label='test webhook', url='http://localhost:3000/webhooks'
+    )
     _test_attributes(webhook)
 
     created_webhook = await client.create_webhook(364806029876555776, webhook)
@@ -421,7 +484,9 @@ async def test_Client_rotate_webhook_secret_works(
   monkeypatch: pytest.MonkeyPatch,
   client: topgg.Client,
 ) -> None:
-  with RequestMock(200, 'OK', response='mocks/post_projects_id_webhooks_id_rotate.json') as request:
+  with RequestMock(
+    200, 'OK', response='mocks/post_projects_id_webhooks_id_rotate.json'
+  ) as request:
     monkeypatch.setattr('aiohttp.ClientSession.request', request)
 
     secret = await client.rotate_webhook_secret(364806029876555776, 364806029876555776)

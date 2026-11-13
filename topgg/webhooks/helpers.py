@@ -74,9 +74,11 @@ def verify(secret: str, signature: str, body: str) -> bool:
     if abs(time() - timestamp) > 300:
       return False
 
-    expected_signature = hmac.new(
-      secret.encode('utf-8'), f'{timestamp}.{body}'.encode(), hashlib.sha256
-    ).hexdigest().encode('utf-8')
+    expected_signature = (
+      hmac.new(secret.encode('utf-8'), f'{timestamp}.{body}'.encode(), hashlib.sha256)
+      .hexdigest()
+      .encode('utf-8')
+    )
 
     if len(expected_signature) != len(received_signature):
       return False
