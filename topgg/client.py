@@ -137,7 +137,7 @@ class BaseClient(ABC):
     return f'<{__class__.__name__} {self._http._session!r}>'
 
   @abstractmethod
-  async def _get_token(self) -> str:
+  async def _get_token(self) -> str:  # pragma: nocover
     pass
 
   async def _request(
@@ -173,7 +173,7 @@ class BaseClient(ABC):
 
     params = {}
 
-    if cursor := getattr(reference, '_cursor', None):
+    if cursor := getattr(reference, '_cursor', None):  # pragma: nocover
       params['cursor'] = cursor
 
     return Paginated(
@@ -249,9 +249,9 @@ class BaseClient(ABC):
     """
 
     if not (3 <= len(title) <= 100):
-      raise ValueError('Title length is outside of the accepted threshold')
+      raise ValueError('Title length is outside of the accepted threshold.')
     elif not (100 <= len(content) <= 2000):
-      raise ValueError('Content length is outside of the accepted threshold')
+      raise ValueError('Content length is outside of the accepted threshold.')
 
     await self._request(
       'POST',
@@ -293,7 +293,7 @@ class BaseClient(ABC):
     """
 
     if not (1 <= len(metrics._json) <= 100):
-      raise ValueError('Batch length is outside of the accepted threshold')
+      raise ValueError('Batch length is outside of the accepted threshold.')
 
     await self._request(
       'POST', f'/projects/{id}/metrics/batch', body={'data': metrics._json}
@@ -351,13 +351,13 @@ class BaseClient(ABC):
       if now_timestamp < since_timestamp or (
         (now_timestamp - since_timestamp) > 31536000
       ):
-        raise ValueError('Invalid since timestamp')
+        raise ValueError('Invalid since timestamp.')
 
       params['startDate'] = since.isoformat()
     elif reference is not None:
       params['cursor'] = reference._cursor
     else:
-      raise ValueError('Missing required arguments')
+      raise ValueError('Missing required arguments.')
 
     return Paginated(Vote, 'data', await self._request('GET', path, params=params))
 
@@ -462,7 +462,7 @@ class BaseClient(ABC):
       for webhook in await self._request('GET', f'/projects/{id}/webhooks')
     ]
 
-  async def create_webhook(self, id: int | str, webhook: BaseWebhook) -> None:
+  async def create_webhook(self, id: int | str, webhook: BaseWebhook) -> Webhook:
     """
     Creates a vote webhook on the project.
 
@@ -474,13 +474,16 @@ class BaseClient(ABC):
     :exception Error: The client is already closed.
     :exception RequestError: The client received a non-favorable response from the API.
     :exception Ratelimited: The client is ratelimited from sending more requests.
+
+    :returns: The created webhook.
+    :rtype: :class:`.Webhook`
     """
 
-    await self._request(
+    return Webhook(await self._request(
       'POST',
       f'/projects/{id}/webhooks',
       body={'label': webhook.label, 'url': webhook.url},
-    )
+    ))
 
   async def delete_webhook(self, project_id: int | str, webhook_id: int | str) -> None:
     """
@@ -902,7 +905,7 @@ class Oauth2Client(BaseClient):
       )
     )
 
-  def __del__(self) -> None:
+  def __del__(self) -> None:  # pragma: nocover
     self._refresh_token_task.cancel()
 
   async def _get_token(self) -> str:
@@ -940,7 +943,7 @@ class Oauth2Client(BaseClient):
     if starting_delay > 0:
       await sleep(starting_delay)
 
-    while True:
+    while True:  # pragma: nocover
       await this._refresh_token()
       await sleep(__class__.REFRESH_TOKEN_INTERVAL - 5.0)
 
@@ -969,7 +972,7 @@ class Oauth2Client(BaseClient):
 
     return User(await self._request('GET', '/users/@me'))
 
-  async def get_authorized_user_project(self) -> list[UserProject]:
+  async def get_authorized_user_projects(self) -> list[UserProject]:
     """
     Fetches the projects owned by the user who authorized the application.
 
@@ -1000,9 +1003,9 @@ class Oauth2Client(BaseClient):
     """
 
     if not (3 <= len(submission.headline) <= 140):
-      raise ValueError('Headline length is outside of the accepted threshold')
+      raise ValueError('Headline length is outside of the accepted threshold.')
     elif not (300 <= len(submission.page_content) <= 50000):
-      raise ValueError('Page content length is outside of the accepted threshold')
+      raise ValueError('Page content length is outside of the accepted threshold.')
 
     await self._request(
       'POST',
@@ -1042,7 +1045,7 @@ class Oauth2SessionGuard:
 
   _client: Oauth2Client
 
-  def __repr__(self) -> str:
+  def __repr__(self) -> str:  # pragma: nocover
     return f'<{__class__.__name__} [{self._client!r}]>'
 
   async def __aenter__(self) -> Oauth2Session:

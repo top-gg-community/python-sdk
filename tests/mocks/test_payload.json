@@ -1,0 +1,17 @@
+{
+  "type": "webhook.test",
+  "data": {
+    "user": {
+      "id": "160105994217586689",
+      "platform_id": "160105994217586689",
+      "name": "username",
+      "avatar_url": "<avatar url>"
+    },
+    "project": {
+      "id": "803190510032756736",
+      "type": "bot",
+      "platform": "discord",
+      "platform_id": "160105994217586689"
+    }
+  }
+}

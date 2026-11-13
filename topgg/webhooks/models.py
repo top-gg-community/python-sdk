@@ -89,7 +89,7 @@ class VoteCreate:
   user: User
   """The voter."""
 
-  query: dict[str, str]
+  query: dict[str, str] | None
   """The parsed query parameters appended to the /:id/vote page URL."""
 
   def __init__(self, json: dict):
@@ -99,7 +99,9 @@ class VoteCreate:
     self.expires_at = datetime.fromisoformat(json['expires_at'].replace('Z', '+00:00'))
     self.project = Project(json['project'])
     self.user = User(json['user'])
-    self.query = dict(parse_qsl(json['query']))
+
+    query = json.get('query')
+    self.query = query and dict(parse_qsl(query))
 
   def __repr__(self) -> str:
     return f'<{__class__.__name__} id={self.id} weight={self.weight} project={self.project!r} user={self.user!r} created_at={self.created_at!r} expires_at={self.expires_at!r} query={self.query!r}>'

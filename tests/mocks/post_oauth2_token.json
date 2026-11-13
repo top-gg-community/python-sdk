@@ -1,0 +1,14 @@
+{
+  "access_token": "eyJhbGciOiJIUzI1NiIs...",
+  "token_type": "Bearer",
+  "expires_in": 604800,
+  "refresh_token": "k2Ll3...",
+  "scope": "project.votes.read project.webhooks.write",
+  "project": {
+    "id": "218109768489992192",
+    "platform_id": "1234567890",
+    "name": "Example Bot",
+    "platform": "discord",
+    "type": "bot"
+  }
+}

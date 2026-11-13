@@ -4,6 +4,7 @@
 
 from abc import ABC, abstractmethod
 from collections.abc import Iterator
+from dataclasses import dataclass
 from datetime import UTC, datetime
 from enum import Enum
 
@@ -41,7 +42,7 @@ class Model(ABC):
   __slots__: tuple[str, ...] = ()
 
   @abstractmethod
-  def __init__(self, json: dict):
+  def __init__(self, json: dict):  # pragma: nocover
     pass
 
 
@@ -221,7 +222,7 @@ class LocaleMap:
     for value in self._json.values():
       if len(value) < minimum:
         raise ValueError('A LocaleMap text length is below the minimum threshold.')
-      elif len(value) > maximum:
+      elif len(value) > maximum:  # pragma: nocover
         raise ValueError('A LocaleMap text length is above the maximum threshold.')
 
   def __setitem__(self, locale: Locale, text: str) -> None:
@@ -239,7 +240,7 @@ class LocaleMap:
     if not isinstance(locale, Locale):
       raise TypeError('The specified locale must be a Locale.')
     elif not isinstance(text, str):
-      raise TypeError('The specified locale must be a string.')
+      raise TypeError('The specified text must be a string.')
 
     self._json[locale.value] = text
 
@@ -268,7 +269,7 @@ class Metrics(ABC):
   __slots__: tuple[str, ...] = ()
 
   @abstractmethod
-  def _to_json(self) -> dict:
+  def _to_json(self) -> dict:  # pragma: nocover
     pass
 
 
@@ -529,8 +530,15 @@ class Integration(Model):
     return isinstance(other, __class__) and self.id == other.id
 
 
-class BaseWebhook(Model):
-  """A base webhook."""
+class BaseWebhook:
+  """
+  A base webhook.
+
+  :param label: The webhook's label.
+  :type label: :py:class:`str`
+  :param url: The webhook's URL.
+  :type url: :py:class:`str`
+  """
 
   __slots__: tuple[str, ...] = ('label', 'url')
 
@@ -540,15 +548,15 @@ class BaseWebhook(Model):
   url: str
   """The webhook's URL."""
 
-  def __init__(self, json: dict):
-    self.label = json['label']
-    self.url = json['url']
+  def __init__(self, *, label: str, url: str):
+    self.label = label
+    self.url = url
 
   def __repr__(self) -> str:
     return f'<{__class__.__name__} label={self.label!r} url={self.url!r}>'
 
 
-class Webhook(BaseWebhook):
+class Webhook(BaseWebhook, Model):
   """A webhook."""
 
   __slots__: tuple[str, ...] = ('id',)
@@ -557,7 +565,7 @@ class Webhook(BaseWebhook):
   """The webhook's Top.gg ID."""
 
   def __init__(self, json: dict):
-    super().__init__(json)
+    super().__init__(label=json['label'], url=json['url'])
 
     self.id = int(json['id'])
 
@@ -658,16 +666,9 @@ class UserProject(PartialProject):
     return f'<{__class__.__name__} headline={self.headline!r} review_status={self.review_status!r}>'
 
 
-class ProjectSubmission(Model):
+@dataclass(frozen=True, repr=False, slots=True)
+class ProjectSubmission:
   """A project submission."""
-
-  __slots__: tuple[str, ...] = (
-    'headline',
-    'page_content',
-    'platform',
-    'platform_id',
-    'type',
-  )
 
   platform: Platform
   """The project's platform."""
@@ -683,13 +684,6 @@ class ProjectSubmission(Model):
 
   page_content: str
   """The project's page content."""
-
-  def __init__(self, json: dict):
-    self.platform = Platform(json['platform'])
-    self.type = ProjectType(json['type'])
-    self.platform_id = int(json['platform_id'])
-    self.headline = json['headline']
-    self.page_content = json['page_content']
 
   def __repr__(self) -> str:
     return f'<{__class__.__name__} headline={self.headline!r} page_content={self.page_content!r} platform={self.platform!r} platform_id={self.platform_id} type={self.type!r}>'

@@ -1,0 +1,19 @@
+{
+  "type": "integration.create",
+  "data": {
+    "connection_id": "112402021105124",
+    "webhook_secret": "whs_abcd",
+    "project": {
+      "id": "1230954036934033243",
+      "platform": "discord",
+      "platform_id": "3949456393249234923",
+      "type": "bot"
+    },
+    "user": {
+      "id": "3949456393249234923",
+      "platform_id": "3949456393249234923",
+      "name": "username",
+      "avatar_url": "<avatar url>"
+    }
+  }
+}

@@ -1,3 +1,4 @@
 **/__pycache__/*
+.coverage
 .ruff_cache/
 topggpy.egg-info/

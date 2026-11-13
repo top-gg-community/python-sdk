@@ -1,0 +1,6 @@
+{
+  "type": "integration.delete",
+  "data": {
+    "connection_id": "112402021105124"
+  }
+}

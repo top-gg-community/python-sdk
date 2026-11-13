@@ -2,7 +2,7 @@
 # SPDX-FileCopyrightText: 2021-2024 Assanali Mukhanov & Top.gg
 # SPDX-FileCopyrightText: 2024-2026 null8626 & Top.gg
 
-from .. import VERSION
+from ..version import VERSION
 from .helpers import parse, verify
 from .models import (
   IntegrationCreate,

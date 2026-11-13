@@ -6,7 +6,7 @@ import hashlib
 import hmac
 from time import time
 
-from .. import Error
+from ..errors import Error
 from .models import IntegrationCreate, IntegrationDelete, Test, VoteCreate
 
 Payload = VoteCreate | Test | IntegrationCreate | IntegrationDelete
@@ -20,14 +20,17 @@ def parse(json: dict) -> Payload:
   :param json: The webhook request's JSON body.
   :type json: :py:class:`dict`
 
-  :exception Error: The webhook payload's event type is unrecognized.
+  :exception Error: The webhook payload is unrecognized.
 
   :returns: The parsed webhook payload.
   :rtype: :class:`.Payload`
   """
 
-  type_ = json['type']
-  data = json['data']
+  type_ = json.get('type')
+  data = json.get('data')
+
+  if data is None:
+    raise Error('Missing data property.')
 
   match type_:
     case 'vote.create':

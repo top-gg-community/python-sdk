@@ -21,7 +21,7 @@ $ pip install topggpy
 ```python
 import topgg
 
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta, UTC
 import asyncio
 import os
 
@@ -31,7 +31,7 @@ async def main():
     project = await client.get_project()
     print(project)
 
-    votes = await client.get_votes(since=datetime.now(timezone.utc) - timedelta(hours=1))
+    votes = await client.get_votes(since=datetime.now(UTC) - timedelta(hours=1))
     for vote in votes:
       print(vote)
 
@@ -57,7 +57,7 @@ async def main():
     await client.edit_project(headline, page_content)
 
     metrics = topgg.TimestampedMetrics[topgg.DiscordBotMetrics]()
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
 
     metrics.add(now - timedelta(hours=3), topgg.DiscordBotMetrics(server_count=5))
     metrics.add(now - timedelta(hours=2), topgg.DiscordBotMetrics(server_count=6))
@@ -143,7 +143,7 @@ async def handle_oauth2(request: web.Request) -> web.Response:
       webhooks = await client.get_webhooks(364806029876555776)
 
       user = await client.get_authorized_user()
-      user_projects = await client.get_authorized_user_project()
+      user_projects = await client.get_authorized_user_projects()
 
       return web.Response(status=200, text=f'Projects: {projects!r}\n' +
                                            f'Integrations: {integrations!r}\n' +
