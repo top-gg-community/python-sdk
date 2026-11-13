@@ -2,12 +2,12 @@
 # SPDX-FileCopyrightText: 2021-2024 Assanali Mukhanov & Top.gg
 # SPDX-FileCopyrightText: 2024-2026 null8626 & Top.gg
 
-from time import time
 import hashlib
 import hmac
+from time import time
 
-from .models import VoteCreate, Test, IntegrationCreate, IntegrationDelete
 from .. import Error
+from .models import IntegrationCreate, IntegrationDelete, Test, VoteCreate
 
 Payload = VoteCreate | Test | IntegrationCreate | IntegrationDelete
 """A webhook payload."""
@@ -72,7 +72,7 @@ def verify(secret: str, signature: str, body: str) -> bool:
       return False
 
     expected_signature = hmac.new(
-      secret.encode('utf-8'), f'{timestamp}.{body}'.encode('utf-8'), hashlib.sha256
+      secret.encode('utf-8'), f'{timestamp}.{body}'.encode(), hashlib.sha256
     ).hexdigest().encode('utf-8')
 
     if len(expected_signature) != len(received_signature):

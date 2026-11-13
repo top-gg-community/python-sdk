@@ -2,6 +2,16 @@
 # SPDX-FileCopyrightText: 2021-2024 Assanali Mukhanov & Top.gg
 # SPDX-FileCopyrightText: 2024-2026 null8626 & Top.gg
 
+from . import webhooks
+from .client import (
+  Client,
+  Oauth2,
+  Oauth2Client,
+  Oauth2Session,
+  Oauth2SessionGuard,
+  Oauth2URL,
+)
+from .errors import Error, Ratelimited, RequestError
 from .models import (
   AnnouncementCategory,
   BaseWebhook,
@@ -28,18 +38,7 @@ from .models import (
   Vote,
   Webhook,
 )
-from .client import (
-  Client,
-  Oauth2,
-  Oauth2Client,
-  Oauth2Session,
-  Oauth2SessionGuard,
-  Oauth2URL,
-)
-from .errors import Error, Ratelimited, RequestError
 from .version import VERSION
-from . import webhooks
-
 
 __title__ = 'topggpy'
 __author__ = 'null8626 & Top.gg'
@@ -50,6 +49,7 @@ __license__ = 'MIT'
 __copyright__ = 'Copyright (c) 2024-2026 null8626 & Top.gg'
 __version__ = VERSION
 __all__ = (
+  'VERSION',
   'AnnouncementCategory',
   'BaseWebhook',
   'Client',
@@ -73,15 +73,14 @@ __all__ = (
   'ProjectSubmission',
   'ProjectType',
   'Ratelimited',
-  'ReviewStatus',
   'RequestError',
+  'ReviewStatus',
   'RobloxGameMetrics',
   'TimestampedMetrics',
   'User',
   'UserConnection',
   'UserProject',
   'UserSource',
-  'VERSION',
   'Vote',
   'Webhook',
   'webhooks',

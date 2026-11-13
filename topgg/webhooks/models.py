@@ -2,8 +2,8 @@
 # SPDX-FileCopyrightText: 2021-2024 Assanali Mukhanov & Top.gg
 # SPDX-FileCopyrightText: 2024-2026 null8626 & Top.gg
 
-from urllib.parse import parse_qsl
 from datetime import datetime
+from urllib.parse import parse_qsl
 
 from ..models import Platform
 
@@ -11,7 +11,7 @@ from ..models import Platform
 class Project:
   """A project."""
 
-  __slots__: tuple[str, ...] = ('id', 'platform_id', 'platform')
+  __slots__: tuple[str, ...] = ('id', 'platform', 'platform_id')
 
   id: int
   """The project's Top.gg ID."""
@@ -34,7 +34,7 @@ class Project:
 class User:
   """A user."""
 
-  __slots__: tuple[str, ...] = ('id', 'platform_id', 'name', 'avatar')
+  __slots__: tuple[str, ...] = ('avatar', 'id', 'name', 'platform_id')
 
   id: int
   """The user's Top.gg ID."""
@@ -62,13 +62,13 @@ class VoteCreate:
   """A vote.create webhook payload. Top.gg fires this event each time a user upvotes your project. Use it to reward voters, update leaderboards, or log activity."""
 
   __slots__: tuple[str, ...] = (
-    'id',
-    'weight',
     'created_at',
     'expires_at',
+    'id',
     'project',
-    'user',
     'query',
+    'user',
+    'weight',
   )
 
   id: int
@@ -127,7 +127,7 @@ class Test:
 class IntegrationCreate:
   """A integration.create webhook payload that fires when a user visits your integration page on Top.gg and clicks the Connect button."""
 
-  __slots__: tuple[str, ...] = ('connection_id', 'webhook_secret', 'project', 'user')
+  __slots__: tuple[str, ...] = ('connection_id', 'project', 'user', 'webhook_secret')
 
   connection_id: int
   """The connection's Top.gg ID. Store this to track and delete."""

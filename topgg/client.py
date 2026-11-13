@@ -2,19 +2,21 @@
 # SPDX-FileCopyrightText: 2021-2024 Assanali Mukhanov & Top.gg
 # SPDX-FileCopyrightText: 2024-2026 null8626 & Top.gg
 
-from aiohttp import ClientResponseError, ClientSession, ClientTimeout
-from datetime import datetime, timedelta, timezone
-from asyncio import create_task, Lock, sleep, Task
-from dataclasses import dataclass, field
-from urllib.parse import quote_plus
-from abc import abstractmethod
-from typing import Any
-from yarl import Query
-import hashlib
-import secrets
 import base64
+import hashlib
 import json
+import secrets
+from abc import abstractmethod
+from asyncio import Lock, Task, create_task, sleep
+from dataclasses import dataclass, field
+from datetime import UTC, datetime, timedelta
+from typing import Any, Self
+from urllib.parse import quote_plus
 
+from aiohttp import ClientResponseError, ClientSession, ClientTimeout
+from yarl import Query
+
+from .errors import Error, Ratelimited, RequestError
 from .models import (
   AnnouncementCategory,
   BaseWebhook,
@@ -33,9 +35,7 @@ from .models import (
   Vote,
   Webhook,
 )
-from .errors import Error, Ratelimited, RequestError
 from .version import VERSION
-
 
 API_VERSION = 'v1'
 BASE_URL = f'https://top.gg/api/{API_VERSION}'
@@ -345,7 +345,7 @@ class BaseClient:
     params = {}
 
     if since is not None:
-      now_timestamp = datetime.now(timezone.utc).timestamp()
+      now_timestamp = datetime.now(UTC).timestamp()
       since_timestamp = since.timestamp()
 
       if now_timestamp < since_timestamp or (
@@ -540,7 +540,7 @@ class BaseClient:
 
     await self._http.close()
 
-  async def __aenter__(self) -> 'BaseClient':
+  async def __aenter__(self) -> Self:
     return self
 
   async def __aexit__(self, *_, **__) -> None:
@@ -709,7 +709,7 @@ class Client(BaseClient):
 
     return await super().get_vote('@me', user_id, source)
 
-  async def __aenter__(self) -> 'Client':
+  async def __aenter__(self) -> Self:
     return self
 
   async def __aexit__(self, *_, **__) -> None:
@@ -728,7 +728,7 @@ class Oauth2Session:
 
   token_expires_at: datetime = field(
     default_factory=lambda: (
-      datetime.now(timezone.utc) + timedelta(seconds=Oauth2Client.REFRESH_TOKEN_INTERVAL)
+      datetime.now(UTC) + timedelta(seconds=Oauth2Client.REFRESH_TOKEN_INTERVAL)
     )
   )
   """When the session's access token expires."""
@@ -745,14 +745,14 @@ class Oauth2Session:
     :rtype: :py:class:`bool`
     """
 
-    return datetime.now(timezone.utc) >= self.token_expires_at
+    return datetime.now(UTC) >= self.token_expires_at
 
 
 @dataclass(frozen=True, repr=False, slots=True)
 class Oauth2URL:
   """An oauth2 URL."""
 
-  _oauth2: Oauth2
+  _oauth2: 'Oauth2'
 
   state: str
   """The state."""
@@ -798,9 +798,9 @@ class Oauth2:
   __slots__: tuple[str, ...] = (
     '_client_id',
     '_client_secret',
+    '_http',
     '_redirect_uri',
     '_scope',
-    '_http',
   )
 
   _client_id: int | str
@@ -824,7 +824,7 @@ class Oauth2:
     self._scope = '+'.join(scopes)
     self._http = HttpClient(session)
 
-  def new_client(self, session: Oauth2Session) -> Oauth2Client:
+  def new_client(self, session: Oauth2Session) -> 'Oauth2Client':
     """
     Creates an oauth2 API client from an oauth2 session.
 
@@ -878,9 +878,9 @@ class Oauth2Client(BaseClient):
 
   __slots__: tuple[str, ...] = (
     '_oauth2',
-    '_session',
     '_refresh_token_lock',
     '_refresh_token_task',
+    '_session',
   )
 
   _oauth2: Oauth2
@@ -898,7 +898,7 @@ class Oauth2Client(BaseClient):
     self._refresh_token_lock = Lock()
     self._refresh_token_task = create_task(
       __class__._refresh_token_task_callback(
-        self, session.token_expires_at.timestamp() - datetime.now(timezone.utc).timestamp() - 5.0
+        self, session.token_expires_at.timestamp() - datetime.now(UTC).timestamp() - 5.0
       )
     )
 

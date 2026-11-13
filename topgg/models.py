@@ -2,9 +2,9 @@
 # SPDX-FileCopyrightText: 2021-2024 Assanali Mukhanov & Top.gg
 # SPDX-FileCopyrightText: 2024-2026 null8626 & Top.gg
 
-from datetime import datetime, timezone
 from abc import ABC, abstractmethod
-from typing import Iterator
+from collections.abc import Iterator
+from datetime import UTC, datetime
 from enum import Enum
 
 
@@ -48,7 +48,7 @@ class Model(ABC):
 class PartialProject(Model):
   """A partial project."""
 
-  __slots__: tuple[str, ...] = ('id', 'platform_id', 'name', 'platform', 'type')
+  __slots__: tuple[str, ...] = ('id', 'name', 'platform', 'platform_id', 'type')
 
   id: int
   """The project's Top.gg ID."""
@@ -83,16 +83,16 @@ class Project(Model):
   """A project."""
 
   __slots__: tuple[str, ...] = (
+    'current_votes',
+    'headline',
     'id',
     'name',
     'platform',
-    'type',
-    'headline',
-    'tags',
-    'current_votes',
-    'total_votes',
-    'review_score',
     'review_count',
+    'review_score',
+    'tags',
+    'total_votes',
+    'type',
   )
 
   id: int
@@ -328,7 +328,7 @@ class DiscordServerMetrics(Metrics):
   :exception ValueError: The ``online_member_count`` and/or ``online_member_count`` must be specified.
   """
 
-  __slots__: tuple[str, ...] = ('total_member_count', 'online_member_count')
+  __slots__: tuple[str, ...] = ('online_member_count', 'total_member_count')
 
   total_member_count: int | None
   online_member_count: int | None
@@ -434,7 +434,7 @@ class TimestampedMetrics[M: Metrics]:
 class PartialVote(Model):
   """A partial vote."""
 
-  __slots__: tuple[str, ...] = ('weight', 'created_at', 'expires_at')
+  __slots__: tuple[str, ...] = ('created_at', 'expires_at', 'weight')
 
   weight: int
   """The vote's weight (1 normally, 2 during weekend multiplier.)"""
@@ -449,7 +449,7 @@ class PartialVote(Model):
   def has_expired(self) -> bool:
     """Whether the vote has expired."""
 
-    return datetime.now(timezone.utc) >= self.expires_at
+    return datetime.now(UTC) >= self.expires_at
 
   def __init__(self, json: dict):
     self.weight = json['weight']
@@ -475,7 +475,7 @@ class UserSource(Enum):
 class Vote(PartialVote):
   """A vote."""
 
-  __slots__: tuple[str, ...] = ('user_id', 'platform_id')
+  __slots__: tuple[str, ...] = ('platform_id', 'user_id')
 
   user_id: int
   """The voter's Top.gg ID."""
@@ -498,7 +498,7 @@ class Vote(PartialVote):
 class Integration(Model):
   """An integration."""
 
-  __slots__: tuple[str, ...] = ('id', 'name', 'description', 'icon_url', 'connected')
+  __slots__: tuple[str, ...] = ('connected', 'description', 'icon_url', 'id', 'name')
 
   id: int
   """The integration's Top.gg ID."""
@@ -571,7 +571,7 @@ class Webhook(BaseWebhook):
 class UserConnection(Model):
   """A user's platform connection."""
 
-  __slots__: tuple[str, ...] = ('platform', 'id')
+  __slots__: tuple[str, ...] = ('id', 'platform')
 
   platform: Platform
   """The connection's platform."""
@@ -593,7 +593,7 @@ class UserConnection(Model):
 class User(Model):
   """A user."""
 
-  __slots__: tuple[str, ...] = ('id', 'username', 'avatar', 'connections')
+  __slots__: tuple[str, ...] = ('avatar', 'connections', 'id', 'username')
 
   id: int
   """The user's Top.gg ID."""
@@ -662,11 +662,11 @@ class ProjectSubmission(Model):
   """A project submission."""
 
   __slots__: tuple[str, ...] = (
-    'platform',
-    'type',
-    'platform_id',
     'headline',
     'page_content',
+    'platform',
+    'platform_id',
+    'type',
   )
 
   platform: Platform
@@ -698,7 +698,7 @@ class ProjectSubmission(Model):
 class Paginated[T: Model]:
   """An API call result that may contain paginated data."""
 
-  __slots__: tuple[str, ...] = ('_data', '_cursor')
+  __slots__: tuple[str, ...] = ('_cursor', '_data')
 
   _data: list[T]
   _cursor: str | None
