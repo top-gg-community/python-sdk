@@ -1,6 +1,6 @@
 # Top.gg Python SDK
 
-The community-maintained Python library for Top.gg.
+The community-maintained Python SDK for Top.gg.
 
 ## Chapters
 

@@ -9,7 +9,7 @@ Top.gg Python SDK
 
    For more information, see the documentation here: https://topggpy.rtfd.io.
 
-The community-maintained Python library for Top.gg.
+The community-maintained Python SDK for Top.gg.
 
 Installation
 ------------
