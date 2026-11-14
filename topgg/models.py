@@ -289,7 +289,10 @@ class DiscordBotMetrics(Metrics):
   __slots__: tuple[str, ...] = ('server_count', 'shard_count')
 
   server_count: int | None
+  """The bot's server count."""
+
   shard_count: int | None
+  """The bot's shard count."""
 
   def __init__(
     self, *, server_count: int | None = None, shard_count: int | None = None
@@ -334,7 +337,10 @@ class DiscordServerMetrics(Metrics):
   __slots__: tuple[str, ...] = ('online_member_count', 'total_member_count')
 
   total_member_count: int | None
+  """The server's total member count."""
+
   online_member_count: int | None
+  """The server's online member count."""
 
   def __init__(
     self,
@@ -381,6 +387,7 @@ class RobloxGameMetrics(Metrics):
   __slots__: tuple[str, ...] = ('player_count',)
 
   player_count: int
+  """The game's player count."""
 
   def __init__(self, player_count: int):
     if not isinstance(player_count, int):
