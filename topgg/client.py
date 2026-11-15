@@ -1050,7 +1050,7 @@ class Oauth2Client(BaseClient):
     async with self.session as session:
       await self._oauth2._http._request(
         'POST',
-        '/oauth2/token',
+        '/oauth2/revoke',
         {'Content-Type': 'application/x-www-form-urlencoded'},
         body=f'client_id={self._oauth2._client_id}&client_secret={self._oauth2._client_secret}&refresh_token={session.token}',
       )
