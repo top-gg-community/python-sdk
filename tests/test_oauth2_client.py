@@ -117,7 +117,7 @@ async def test_Oauth2_submit_project_works(
     monkeypatch.setattr('aiohttp.ClientSession.request', request)
 
     with pytest.raises(
-      ValueError, match=r'^Headline length is outside of the accepted threshold\.$'
+      ValueError, match=r'^Headline length is outside of the accepted range\.$'
     ):
       submission = topgg.ProjectSubmission(
         platform=topgg.Platform.DISCORD,
@@ -130,7 +130,7 @@ async def test_Oauth2_submit_project_works(
       await client.submit_project(submission)
 
     with pytest.raises(
-      ValueError, match=r'^Page content length is outside of the accepted threshold\.$'
+      ValueError, match=r'^Page content length is outside of the accepted range\.$'
     ):
       submission = topgg.ProjectSubmission(
         platform=topgg.Platform.DISCORD,

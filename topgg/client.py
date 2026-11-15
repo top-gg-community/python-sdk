@@ -220,7 +220,7 @@ class BaseClient(ABC):
     :param page_content: page_content A map of locales to page content strings (Markdown supported.) Each entry must be between 300 and 50,000 characters.
     :type page_content: :class:`.LocaleMap`
 
-    :exception ValueError: The headline or page_content length does not match the required thresholds.
+    :exception ValueError: The headline or page_content length does not match the required ranges.
     :exception Error: The client is already closed.
     :exception RequestError: The client received a non-favorable response from the API.
     :exception Ratelimited: The client is ratelimited from sending more requests.
@@ -250,16 +250,16 @@ class BaseClient(ABC):
     :param category: The category to publish the announcement under.
     :type category: :class:`.AnnouncementCategory`
 
-    :exception ValueError: The title or content length does not match the required thresholds.
+    :exception ValueError: The title or content length does not match the required ranges.
     :exception Error: The client is already closed.
     :exception RequestError: The client received a non-favorable response from the API.
     :exception Ratelimited: The client is ratelimited from sending more requests.
     """
 
     if not (3 <= len(title) <= 100):
-      raise ValueError('Title length is outside of the accepted threshold.')
+      raise ValueError('Title length is outside of the accepted range.')
     elif not (100 <= len(content) <= 2000):
-      raise ValueError('Content length is outside of the accepted threshold.')
+      raise ValueError('Content length is outside of the accepted range.')
 
     await self._request(
       'POST',
@@ -294,14 +294,14 @@ class BaseClient(ABC):
     :param metrics: The metrics payloads.
     :type metrics: :class:`.TimestampedMetrics`\ [:class:`.Metrics`\ ]
 
-    :exception ValueError: The metrics entries length does not match the required threshold.
+    :exception ValueError: The metrics entries length does not match the required range.
     :exception Error: The client is already closed.
     :exception RequestError: The client received a non-favorable response from the API.
     :exception Ratelimited: The client is ratelimited from sending more requests.
     """
 
     if not (1 <= len(metrics._json) <= 100):
-      raise ValueError('Batch length is outside of the accepted threshold.')
+      raise ValueError('Batch length is outside of the accepted range.')
 
     await self._request(
       'POST', f'/projects/{id}/metrics/batch', body={'data': metrics._json}
@@ -617,7 +617,7 @@ class Client(BaseClient):
     :param page_content: page_content A map of locales to page content strings (Markdown supported.) Each entry must be between 300 and 50,000 characters.
     :type page_content: :class:`.LocaleMap`
 
-    :exception ValueError: The headline or page_content length does not match the required thresholds.
+    :exception ValueError: The headline or page_content length does not match the required ranges.
     :exception Error: The client is already closed.
     :exception RequestError: The client received a non-favorable response from the API.
     :exception Ratelimited: The client is ratelimited from sending more requests.
@@ -638,7 +638,7 @@ class Client(BaseClient):
     :param category: The category to publish the announcement under.
     :type category: :class:`.AnnouncementCategory`
 
-    :exception ValueError: The title or content length does not match the required thresholds.
+    :exception ValueError: The title or content length does not match the required ranges.
     :exception Error: The client is already closed.
     :exception RequestError: The client received a non-favorable response from the API.
     :exception Ratelimited: The client is ratelimited from sending more requests.
@@ -669,7 +669,7 @@ class Client(BaseClient):
     :param metrics: The metrics payloads.
     :type metrics: :class:`.TimestampedMetrics`\ [:class:`.Metrics`\ ]
 
-    :exception ValueError: The metrics entries length does not match the required threshold.
+    :exception ValueError: The metrics entries length does not match the required range.
     :exception Error: The client is already closed.
     :exception RequestError: The client received a non-favorable response from the API.
     :exception Ratelimited: The client is ratelimited from sending more requests.
@@ -1016,16 +1016,16 @@ class Oauth2Client(BaseClient):
     :param submission: The project submission.
     :type submission: :class:`.ProjectSubmission`
 
-    :exception ValueError: The headline or page_content length does not match the required thresholds.
+    :exception ValueError: The headline or page_content length does not match the required ranges.
     :exception Error: The client is already closed.
     :exception RequestError: The client received a non-favorable response from the API.
     :exception Ratelimited: The client is ratelimited from sending more requests.
     """
 
     if not (3 <= len(submission.headline) <= 140):
-      raise ValueError('Headline length is outside of the accepted threshold.')
+      raise ValueError('Headline length is outside of the accepted range.')
     elif not (300 <= len(submission.page_content) <= 50000):
-      raise ValueError('Page content length is outside of the accepted threshold.')
+      raise ValueError('Page content length is outside of the accepted range.')
 
     await self._request(
       'POST',

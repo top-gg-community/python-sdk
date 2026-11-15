@@ -221,9 +221,9 @@ class LocaleMap:
   def _enforce_constraints(self, minimum: int, maximum: int) -> None:
     for value in self._json.values():
       if len(value) < minimum:
-        raise ValueError('A LocaleMap text length is below the minimum threshold.')
+        raise ValueError('A LocaleMap text length is below the minimum range.')
       elif len(value) > maximum:  # pragma: nocover
-        raise ValueError('A LocaleMap text length is above the maximum threshold.')
+        raise ValueError('A LocaleMap text length is above the maximum range.')
 
   def __setitem__(self, locale: Locale, text: str) -> None:
     """

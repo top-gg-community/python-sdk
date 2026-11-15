@@ -113,7 +113,7 @@ async def test_Client_edit_project_works(
     monkeypatch.setattr('aiohttp.ClientSession.request', request)
 
     with pytest.raises(
-      ValueError, match=r'^A LocaleMap text length is below the minimum threshold\.$'
+      ValueError, match=r'^A LocaleMap text length is below the minimum range\.$'
     ):
       headline = topgg.LocaleMap(
         {topgg.Locale.ENGLISH: 'hi', topgg.Locale.GERMAN: 'hi'}
@@ -183,14 +183,14 @@ async def test_Client_post_announcement_works(
     monkeypatch.setattr('aiohttp.ClientSession.request', request)
 
     with pytest.raises(
-      ValueError, match=r'^Title length is outside of the accepted threshold\.$'
+      ValueError, match=r'^Title length is outside of the accepted range\.$'
     ):
       await client.post_announcement(
         '', 'Lorem ipsum' * 25, topgg.AnnouncementCategory.ANNOUNCEMENT
       )
 
     with pytest.raises(
-      ValueError, match=r'^Content length is outside of the accepted threshold\.$'
+      ValueError, match=r'^Content length is outside of the accepted range\.$'
     ):
       await client.post_announcement(
         'My project announcement',
@@ -286,7 +286,7 @@ async def test_Client_post_timestamped_metrics_works(
     now = datetime.now(UTC)
 
     with pytest.raises(
-      ValueError, match=r'^Batch length is outside of the accepted threshold\.$'
+      ValueError, match=r'^Batch length is outside of the accepted range\.$'
     ):
       await client.post_timestamped_metrics(metrics)
 
