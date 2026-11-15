@@ -395,12 +395,12 @@ class BaseClient(ABC):
       )
     )
 
-  async def get_integrations(self, project_id: int | str) -> list[Integration]:
+  async def get_integrations(self, id: int | str) -> list[Integration]:
     r"""
     Fetches the integrations available for a project and whether each one is connected.
 
-    :param project_id: The project's Top.gg ID.
-    :type project_id: :py:class:`int` | :py:class:`str`
+    :param id: The project's Top.gg ID.
+    :type id: :py:class:`int` | :py:class:`str`
 
     :exception Error: The client is already closed.
     :exception RequestError: The client received a non-favorable response from the API.
@@ -413,7 +413,7 @@ class BaseClient(ABC):
     return [
       Integration(integration)
       for integration in await self._request(
-        'GET', f'/projects/{project_id}/integrations'
+        'GET', f'/projects/{id}/integrations'
       )
     ]
 
