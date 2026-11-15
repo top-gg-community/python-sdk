@@ -82,7 +82,7 @@ class HttpClient:
       kwargs['data'] = body if isinstance(body, str) else json.dumps(body)
 
     status = None
-    retry_after = 0.0
+    retry_after = 0
     output = None
 
     try:
@@ -92,7 +92,7 @@ class HttpClient:
         status = resp.status
 
         try:
-          retry_after = int(resp.headers.get('Retry-After', 0))
+          retry_after = int(resp.headers.get('retry-after', 0))
           output = await resp.json()
         except (
           ClientResponseError,

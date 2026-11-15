@@ -54,7 +54,7 @@ async def test_Client_request_error_handling_works(
     request.assert_called_once()
 
   with RequestMock(
-    429, 'Ratelimited', response={}, headers=CIMultiDict({'Retry-After': '6000'})
+    429, 'Ratelimited', response={}, headers=CIMultiDict({'retry-after': '6000'})
   ) as request:
     monkeypatch.setattr('aiohttp.ClientSession.request', request)
 
