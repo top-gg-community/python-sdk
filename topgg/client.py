@@ -349,7 +349,6 @@ class BaseClient(ABC):
     :rtype: :class:`.Paginated`\ [:class:`.Vote`\ ]
     """
 
-    path = f'/projects/{id}/votes'
     params = {}
 
     if since is not None:
@@ -367,7 +366,7 @@ class BaseClient(ABC):
     else:
       raise ValueError('Missing required arguments.')
 
-    return Paginated(Vote, 'data', await self._request('GET', path, params=params))
+    return Paginated(Vote, 'data', await self._request('GET', f'/projects/{id}/votes', params=params))
 
   async def get_vote(
     self, id: int | str, user_id: int | str, source: UserSource
