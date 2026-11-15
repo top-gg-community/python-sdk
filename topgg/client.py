@@ -92,7 +92,7 @@ class HttpClient:
         status = resp.status
 
         try:
-          retry_after = float(resp.headers.get('Retry-After', 0))
+          retry_after = int(resp.headers.get('Retry-After', 0))
           output = await resp.json()
         except (
           ClientResponseError,

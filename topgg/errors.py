@@ -37,10 +37,10 @@ class Ratelimited(Error):
 
   __slots__: tuple[str, ...] = ('retry_after',)
 
-  retry_after: float
+  retry_after: int
   """How long the client should wait (in seconds) until it can make a request to the API again."""
 
-  def __init__(self, retry_after: float):
+  def __init__(self, retry_after: int):
     self.retry_after = retry_after
 
     super().__init__(
