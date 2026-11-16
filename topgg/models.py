@@ -5,7 +5,7 @@
 from abc import ABC, abstractmethod
 from collections.abc import Iterator
 from dataclasses import dataclass
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timezone
 from enum import Enum
 
 
@@ -437,7 +437,7 @@ class TimestampedMetrics[M: Metrics]:
 
     self._json.append(
       {
-        'timestamp': timestamp.strftime('%Y-%m-%dT%H:%M:%SZ'),
+        'timestamp': timestamp.astimezone(timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ'),
         'metrics': metrics._to_json(),
       }
     )
