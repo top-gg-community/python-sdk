@@ -952,7 +952,7 @@ class Oauth2Client(BaseClient):
     body = 'grant_type=refresh_token&client_id='
 
     async with self.session as session:
-      body += f'{self._oauth2._client_id}&client_secret={self._oauth2._client_secret}&refresh_token={session.token}'
+      body += f'{self._oauth2._client_id}&client_secret={self._oauth2._client_secret}&refresh_token={session.refresh_token}'
 
       data = await self._oauth2._http._request(
         'POST',
