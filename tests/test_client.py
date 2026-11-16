@@ -259,18 +259,18 @@ async def test_Client_post_metrics_works(
       with pytest.raises(
         TypeError, match=r'^The specified total member count must be an integer\.$'
       ):
-        await client.post_metrics(topgg.DiscordServerMetrics(total_member_count=''))
+        await client.post_metrics(topgg.DiscordServerMetrics(member_count=''))
 
       with pytest.raises(
         TypeError, match=r'^The specified online member count must be an integer\.$'
       ):
-        await client.post_metrics(topgg.DiscordServerMetrics(online_member_count=''))
+        await client.post_metrics(topgg.DiscordServerMetrics(online_count=''))
 
-    metrics = topgg.DiscordServerMetrics(total_member_count=5)
+    metrics = topgg.DiscordServerMetrics(member_count=5)
     _test_attributes(metrics)
 
     await client.post_metrics(metrics)
-    await client.post_metrics(topgg.DiscordServerMetrics(online_member_count=5))
+    await client.post_metrics(topgg.DiscordServerMetrics(online_count=5))
 
     if not TYPE_CHECKING:
       with pytest.raises(

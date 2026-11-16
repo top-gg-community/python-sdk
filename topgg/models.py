@@ -325,51 +325,51 @@ class DiscordServerMetrics(Metrics):
   """
   A Discord server's metrics.
 
-  :param total_member_count: The server's server count.
-  :type total_member_count: :class:`int`
-  :param online_member_count: The server's shard count.
-  :type online_member_count: :class:`int`
+  :param member_count: The server's server count.
+  :type member_count: :class:`int`
+  :param online_count: The server's shard count.
+  :type online_count: :class:`int`
 
-  :exception TypeError: ``online_member_count`` is not an :class:`int` or ``online_member_count`` is not an :class:`int`.
-  :exception ValueError: The ``online_member_count`` and/or ``online_member_count`` must be specified.
+  :exception TypeError: ``online_count`` is not an :class:`int` or ``online_count`` is not an :class:`int`.
+  :exception ValueError: The ``online_count`` and/or ``online_count`` must be specified.
   """
 
-  __slots__: tuple[str, ...] = ('online_member_count', 'total_member_count')
+  __slots__: tuple[str, ...] = ('online_count', 'member_count')
 
-  total_member_count: int | None
+  member_count: int | None
   """The server's total member count."""
 
-  online_member_count: int | None
+  online_count: int | None
   """The server's online member count."""
 
   def __init__(
     self,
     *,
-    total_member_count: int | None = None,
-    online_member_count: int | None = None,
+    member_count: int | None = None,
+    online_count: int | None = None,
   ):
-    if total_member_count is None and online_member_count is None:
+    if member_count is None and online_count is None:
       raise ValueError(
         'The total member count and/or online member count must be specified.'
       )
-    elif total_member_count is not None and not isinstance(total_member_count, int):
+    elif member_count is not None and not isinstance(member_count, int):
       raise TypeError('The specified total member count must be an integer.')
-    elif online_member_count is not None and not isinstance(online_member_count, int):
+    elif online_count is not None and not isinstance(online_count, int):
       raise TypeError('The specified online member count must be an integer.')
 
-    self.total_member_count = total_member_count
-    self.online_member_count = online_member_count
+    self.member_count = member_count
+    self.online_count = online_count
 
   def __repr__(self) -> str:
-    return f'<{__class__.__name__} total_member_count={self.total_member_count} online_member_count={self.online_member_count}>'
+    return f'<{__class__.__name__} member_count={self.member_count} online_count={self.online_count}>'
 
   def _to_json(self) -> dict:
     json = {}
 
-    if self.total_member_count is not None:
-      json['total_member_count'] = self.total_member_count
-    if self.online_member_count is not None:
-      json['online_member_count'] = self.online_member_count
+    if self.member_count is not None:
+      json['member_count'] = self.member_count
+    if self.online_count is not None:
+      json['online_count'] = self.online_count
 
     return json
 
