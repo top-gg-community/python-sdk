@@ -724,4 +724,10 @@ class Paginated[T: Model]:
     return iter(self._data)
 
   def __repr__(self) -> str:
-    return f'<{__class__.__name__} [{len(self)}]>'
+    return f'<{__class__.__name__} is_last={self.is_last} [{len(self)}]>'
+
+  @property
+  def is_last(self) -> bool:
+    """Whether this is the last page."""
+
+    return self._cursor is None

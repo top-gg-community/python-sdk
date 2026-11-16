@@ -32,7 +32,7 @@ def test_Client_attributes_work(client: topgg.Client) -> None:
 
 @pytest.mark.asyncio
 async def test_Client_basic_error_handling_works() -> None:
-  with pytest.raises(topgg.Error, match='^Client session is already closed.$'):
+  with pytest.raises(topgg.Error, match=r'^Client session is already closed\.$'):
     test_client = topgg.Client('')
 
     await test_client.close()
@@ -76,7 +76,7 @@ async def test_Client_get_projects_works(
   monkeypatch: pytest.MonkeyPatch,
   client: topgg.Client,
 ) -> None:
-  with RequestMock(200, 'OK', response='mocks/get_projects.json') as request:
+  with RequestMock(200, 'OK', response='mocks/get_projects_cursor.json') as request:
     monkeypatch.setattr('aiohttp.ClientSession.request', request)
 
     projects = await client.get_projects()
@@ -88,6 +88,18 @@ async def test_Client_get_projects_works(
     await client.get_projects(projects)
 
     assert request.call_count == 2
+
+  with RequestMock(200, 'OK', response='mocks/get_projects.json') as request:
+    monkeypatch.setattr('aiohttp.ClientSession.request', request)
+
+    with pytest.raises(
+      topgg.Error, match=r'^The reference is already on the last page\.$'
+    ):
+      projects = await client.get_projects()
+
+      request.assert_called_once()
+
+      await client.get_projects(projects)
 
 
 @pytest.mark.asyncio
@@ -345,7 +357,9 @@ async def test_Client_get_votes_works(
   monkeypatch: pytest.MonkeyPatch,
   client: topgg.Client,
 ) -> None:
-  with RequestMock(200, 'OK', response='mocks/get_projects_id_votes.json') as request:
+  with RequestMock(
+    200, 'OK', response='mocks/get_projects_id_votes_cursor.json'
+  ) as request:
     monkeypatch.setattr('aiohttp.ClientSession.request', request)
 
     with pytest.raises(ValueError, match=r'^Missing required arguments\.$'):
@@ -363,6 +377,18 @@ async def test_Client_get_votes_works(
     await client.get_votes(reference=votes)
 
     assert request.call_count == 2
+
+  with RequestMock(200, 'OK', response='mocks/get_projects_id_votes.json') as request:
+    monkeypatch.setattr('aiohttp.ClientSession.request', request)
+
+    with pytest.raises(
+      topgg.Error, match=r'^The reference is already on the last page\.$'
+    ):
+      votes = await client.get_votes(since=datetime.now(UTC) - timedelta(hours=1))
+
+      request.assert_called_once()
+
+      await client.get_votes(reference=votes)
 
 
 @pytest.mark.asyncio

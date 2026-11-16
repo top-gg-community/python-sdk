@@ -171,13 +171,16 @@ class BaseClient(ABC):
     :param reference: The previously returned paginated list as a starting reference. Defaults to :py:obj:`None`.
     :type reference: :class:`.Paginated`\ [:class:`.PartialProject`\ ] | :py:obj:`None`
 
-    :exception Error: The client is already closed.
+    :exception Error: The reference is already on the last page or the client is already closed.
     :exception RequestError: The client received a non-favorable response from the API.
     :exception Ratelimited: The client is ratelimited from sending more requests.
 
     :returns: The projects the current credential covers.
     :rtype: :class:`.Paginated`\ [:class:`.PartialProject`\ ]
     """
+
+    if getattr(reference, 'is_last', False):
+      raise Error('The reference is already on the last page.')
 
     params = {}
 
@@ -341,13 +344,16 @@ class BaseClient(ABC):
     :type reference: :class:`.Paginated`\ [:class:`.Vote`\ ] | :py:obj:`None`
 
     :exception ValueError: Missing required arguments or the creation date frame of reference is invalid.
-    :exception Error: The client is already closed.
+    :exception Error: The reference is already on the last page or the client is already closed.
     :exception RequestError: The client received a non-favorable response from the API.
     :exception Ratelimited: The client is ratelimited from sending more requests.
 
     :returns: A cursor-paginated list of votes for a project, ordered by creation date (oldest first within each page.)
     :rtype: :class:`.Paginated`\ [:class:`.Vote`\ ]
     """
+
+    if getattr(reference, 'is_last', False):
+      raise Error('The reference is already on the last page.')
 
     params = {}
 
