@@ -760,7 +760,7 @@ class Oauth2Session:
   """When the session's access token expires."""
 
   def __repr__(self) -> str:
-    return f'<{__class__.__name__} token={self.token!r} refresh_token={self.refresh_token!r} token_expires_at={self.token_expires_at!r}>'
+    return f'<{__class__.__name__} token_expires_at={self.token_expires_at!r}>'
 
   @property
   def has_expired(self) -> bool:
