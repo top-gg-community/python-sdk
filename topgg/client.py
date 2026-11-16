@@ -567,17 +567,6 @@ class BaseClient(ABC):
 
     await self._request('POST', f'/projects/{project_id}/webhooks/{webhook_id}/test')
 
-  async def close(self) -> None:
-    """Closes the :class:`.BaseClient` object. Nothing will happen if the client uses a pre-existing :class:`~aiohttp.ClientSession` or if the session is already closed."""
-
-    await self._http.close()
-
-  async def __aenter__(self) -> Self:
-    return self
-
-  async def __aexit__(self, *_, **__) -> None:
-    await self.close()
-
 
 class Client(BaseClient):
   """
@@ -741,11 +730,16 @@ class Client(BaseClient):
 
     return await super().get_vote('@me', user_id, source)
 
+  async def close(self) -> None:
+    """Closes the :class:`.Client` object. Nothing will happen if the client uses a pre-existing :class:`~aiohttp.ClientSession` or if the session is already closed."""
+
+    await self._http.close()
+
   async def __aenter__(self) -> Self:
     return self
 
   async def __aexit__(self, *_, **__) -> None:
-    await super().close()
+    await self.close()
 
 
 @dataclass(repr=False, slots=True)
