@@ -51,6 +51,8 @@ General API calls
          topgg.AnnouncementCategory.ANNOUNCEMENT,
        )
    
+       # Array of application commands that
+       # can be serialized to Discord API's raw JSON format.
        await client.post_commands(
          [
            {
