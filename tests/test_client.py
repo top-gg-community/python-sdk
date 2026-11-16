@@ -407,6 +407,15 @@ async def test_Client_get_vote_works(
 
     request.assert_called_once()
 
+  with RequestMock(404, 'Not Found', response={}) as request:
+    monkeypatch.setattr('aiohttp.ClientSession.request', request)
+
+    vote = await client.get_vote(661200758510977084, topgg.UserSource.DISCORD)
+
+    assert vote is None
+
+    request.assert_called_once()
+
 
 @pytest.mark.asyncio
 async def test_Client_get_integrations_works(

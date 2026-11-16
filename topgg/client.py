@@ -376,7 +376,7 @@ class BaseClient(ABC):
 
   async def get_vote(
     self, id: int | str, user_id: int | str, source: UserSource
-  ) -> PartialVote:
+  ) -> PartialVote | None:
     """
     Fetches the most recent vote for a specific user.
 
@@ -391,15 +391,19 @@ class BaseClient(ABC):
     :exception RequestError: The client received a non-favorable response from the API.
     :exception Ratelimited: The client is ratelimited from sending more requests.
 
-    :returns: The most recent vote for a specific user.
-    :rtype: :class:`.PartialVote`
+    :returns: The most recent vote for a specific user if it exists.
+    :rtype: :class:`.PartialVote` | :py:obj:`None`
     """
 
-    return PartialVote(
-      await self._request(
-        'GET', f'/projects/{id}/votes/{user_id}', params={'source': source.value}
+    try:
+      return PartialVote(
+        await self._request(
+          'GET', f'/projects/{id}/votes/{user_id}', params={'source': source.value}
+        )
       )
-    )
+    except RequestError as error:
+      if error.status != 404:  # pragma: nocover
+        raise
 
   async def get_integrations(self, id: int | str) -> list[Integration]:
     r"""
@@ -718,7 +722,7 @@ class Client(BaseClient):
 
   async def get_vote(
     self, user_id: int | str, source: UserSource, *_, **__
-  ) -> PartialVote:
+  ) -> PartialVote | None:
     """
     Fetches the most recent vote for a specific user.
 
@@ -731,8 +735,8 @@ class Client(BaseClient):
     :exception RequestError: The client received a non-favorable response from the API.
     :exception Ratelimited: The client is ratelimited from sending more requests.
 
-    :returns: The most recent vote for a specific user.
-    :rtype: :class:`.PartialVote`
+    :returns: The most recent vote for a specific user if it exists.
+    :rtype: :class:`.PartialVote` | :py:obj:`None`
     """
 
     return await super().get_vote('@me', user_id, source)
