@@ -20,6 +20,13 @@ class Platform(Enum):
   ROBLOX = 'roblox'
   """Roblox."""
 
+  UNKNOWN = 'unknown'
+  """Unknown."""
+
+  @classmethod
+  def _missing_(cls, value: object) -> Platform:  # pragma: nocover
+    return Platform.UNKNOWN
+
 
 class ProjectType(Enum):
   """A project's type."""
@@ -34,6 +41,13 @@ class ProjectType(Enum):
 
   GAME = 'game'
   """A game."""
+
+  UNKNOWN = 'unknown'
+  """Unknown."""
+
+  @classmethod
+  def _missing_(cls, value: object) -> ProjectType:  # pragma: nocover
+    return ProjectType.UNKNOWN
 
 
 class Model(ABC):
