@@ -122,7 +122,7 @@ async def test_Oauth2_submit_project_works(
       submission = topgg.ProjectSubmission(
         platform=topgg.Platform.DISCORD,
         type=topgg.ProjectType.BOT,
-        platform_id=1557409617225457727,
+        platform_id='1557409617225457727',
         headline='hi',
         page_content='hello this is a page content' * 20,
       )
@@ -135,7 +135,7 @@ async def test_Oauth2_submit_project_works(
       submission = topgg.ProjectSubmission(
         platform=topgg.Platform.DISCORD,
         type=topgg.ProjectType.BOT,
-        platform_id=1557409617225457727,
+        platform_id='1557409617225457727',
         headline='hello this is a headline',
         page_content='hello',
       )
@@ -145,7 +145,7 @@ async def test_Oauth2_submit_project_works(
     submission = topgg.ProjectSubmission(
       platform=topgg.Platform.DISCORD,
       type=topgg.ProjectType.BOT,
-      platform_id=1557409617225457727,
+      platform_id='1557409617225457727',
       headline='hello this is a headline',
       page_content='hello this is a page content' * 20,
     )

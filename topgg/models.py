@@ -54,7 +54,7 @@ class PartialProject(Model):
   id: int
   """The project's Top.gg ID."""
 
-  platform_id: int
+  platform_id: str
   """The project's platform ID."""
 
   name: str
@@ -68,7 +68,7 @@ class PartialProject(Model):
 
   def __init__(self, json: dict):
     self.id = int(json['id'])
-    self.platform_id = int(json['platform_id'])
+    self.platform_id = json['platform_id']
     self.name = json['name']
     self.platform = Platform(json['platform'])
     self.type = ProjectType(json['type'])
@@ -497,14 +497,14 @@ class Vote(PartialVote):
   user_id: int
   """The voter's Top.gg ID."""
 
-  platform_id: int
+  platform_id: str
   """The voter's platform ID."""
 
   def __init__(self, json: dict):
     super().__init__(json)
 
     self.user_id = int(json['user_id'])
-    self.platform_id = int(json['platform_id'])
+    self.platform_id = json['platform_id']
 
   def __repr__(self) -> str:
     return (
@@ -692,7 +692,7 @@ class ProjectSubmission:
   type: ProjectType
   """The project's type."""
 
-  platform_id: int
+  platform_id: str
   """The project's platform ID."""
 
   headline: str

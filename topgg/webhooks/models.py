@@ -15,7 +15,7 @@ class Project:
   id: int
   """The project's Top.gg ID."""
 
-  platform_id: int
+  platform_id: str
   """The project's Discord client ID or guild ID."""
 
   platform: Platform
@@ -23,7 +23,7 @@ class Project:
 
   def __init__(self, json: dict):
     self.id = int(json['id'])
-    self.platform_id = int(json['platform_id'])
+    self.platform_id = json['platform_id']
     self.platform = Platform(json['platform'])
 
   def __repr__(self) -> str:
@@ -38,7 +38,7 @@ class User:
   id: int
   """The user's Top.gg ID."""
 
-  platform_id: int
+  platform_id: str
   """The user's Discord ID."""
 
   name: str
@@ -49,7 +49,7 @@ class User:
 
   def __init__(self, json: dict):
     self.id = int(json['id'])
-    self.platform_id = int(json['platform_id'])
+    self.platform_id = json['platform_id']
     self.name = json['name']
     self.avatar = json['avatar_url']
 
