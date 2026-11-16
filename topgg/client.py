@@ -52,7 +52,7 @@ class HttpClient:
 
   def __init__(self, session: ClientSession | None = None):
     self._own_session = session is None
-    self._session = session or ClientSession(timeout=ClientTimeout(total=5000.0))
+    self._session = session or ClientSession(timeout=ClientTimeout(total=5.0))
 
   def __repr__(self) -> str:
     return f'<{__class__.__name__} {self._session!r}>'
