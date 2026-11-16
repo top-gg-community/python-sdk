@@ -3,7 +3,6 @@
 # SPDX-FileCopyrightText: 2024-2026 null8626 & Top.gg
 
 from datetime import datetime
-from urllib.parse import parse_qsl
 
 from ..models import Platform
 
@@ -89,7 +88,7 @@ class VoteCreate:
   user: User
   """The voter."""
 
-  query: dict[str, str] | None
+  query: dict[str, str]
   """The parsed query parameters appended to the /:id/vote page URL."""
 
   def __init__(self, json: dict):
@@ -99,9 +98,7 @@ class VoteCreate:
     self.expires_at = datetime.fromisoformat(json['expires_at'].replace('Z', '+00:00'))
     self.project = Project(json['project'])
     self.user = User(json['user'])
-
-    query = json.get('query')
-    self.query = query and dict(parse_qsl(query))
+    self.query = json.get('query', {})
 
   def __repr__(self) -> str:
     return f'<{__class__.__name__} id={self.id} weight={self.weight} project={self.project!r} user={self.user!r} created_at={self.created_at!r} expires_at={self.expires_at!r} query={self.query!r}>'
