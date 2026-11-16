@@ -1058,7 +1058,7 @@ class Oauth2Client(BaseClient):
         'POST',
         '/oauth2/revoke',
         {'Content-Type': 'application/x-www-form-urlencoded'},
-        body=f'client_id={self._oauth2._client_id}&client_secret={self._oauth2._client_secret}&refresh_token={session.refresh_token}',
+        body=f'client_id={self._oauth2._client_id}&client_secret={self._oauth2._client_secret}&token={session.refresh_token}',
       )
 
       self._refresh_token_task.cancel()
