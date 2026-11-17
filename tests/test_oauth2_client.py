@@ -87,23 +87,6 @@ async def test_Oauth2_exchange_works(
 
 
 @pytest.mark.asyncio
-async def test_Oauth2_session_reentrancy_works(
-  monkeypatch: pytest.MonkeyPatch, oauth2: topgg.Oauth2
-) -> None:
-  with RequestMock(200, 'OK', response='mocks/post_oauth2_token.json') as request:
-    monkeypatch.setattr('aiohttp.ClientSession.request', request)
-
-    client = oauth2.new_client(
-      topgg.Oauth2Session(token='', refresh_token='', expires_at=datetime.now(UTC))
-    )
-
-    async with client.session as _, client.session as __:
-      await client._ensure_session()
-
-      request.assert_called_once()
-
-
-@pytest.mark.asyncio
 async def test_Oauth2Client_get_projects_works(
   monkeypatch: pytest.MonkeyPatch,
   client: topgg.Oauth2Client,
