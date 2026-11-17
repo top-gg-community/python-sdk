@@ -362,9 +362,10 @@ class ProjectClient(HttpClient):
           'GET', f'/projects/@me/votes/{user_id}', params={'source': source.value}
         )
       )
-    except RequestError as error:
-      if error.status != 404 or error.code != 'VOTE_EXPIRED':  # pragma: nocover
-        raise
+    except RequestError as error:  # pragma: nocover
+      if error.status == 404 and error.code in ('VOTE_NOT_FOUND', 'VOTE_EXPIRED'):
+        return
+      raise
 
   async def __aenter__(self) -> Self:
     return self
@@ -656,9 +657,10 @@ class ApplicationClient(HttpClient):
           'GET', f'/projects/{id}/votes/{user_id}', params={'source': source.value}
         )
       )
-    except RequestError as error:
-      if error.status != 404 or error.code != 'VOTE_EXPIRED':  # pragma: nocover
-        raise
+    except RequestError as error:  # pragma: nocover
+      if error.status == 404 and error.code in ('VOTE_NOT_FOUND', 'VOTE_EXPIRED'):
+        return
+      raise
 
   async def get_integrations(self, id: int) -> list[Integration]:
     r"""
@@ -1312,9 +1314,10 @@ class Oauth2Client(HttpClient):
           'GET', f'/projects/{id}/votes/{user_id}', params={'source': source.value}
         )
       )
-    except RequestError as error:
-      if error.status != 404 or error.code != 'VOTE_EXPIRED':  # pragma: nocover
-        raise
+    except RequestError as error:  # pragma: nocover
+      if error.status == 404 and error.code in ('VOTE_NOT_FOUND', 'VOTE_EXPIRED'):
+        return
+      raise
 
   async def get_integrations(self, id: int) -> list[Integration]:
     r"""
