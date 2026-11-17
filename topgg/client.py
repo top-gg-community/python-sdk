@@ -1069,7 +1069,7 @@ class Oauth2Client(BaseApplicationClient):
       session._update(data)
 
   @property
-  def session(self) -> Oauth2SessionGuard:
+  def session(self) -> 'Oauth2SessionGuard':
     """The client's oauth2 session enclosed within a guard."""
 
     return Oauth2SessionGuard(self)
