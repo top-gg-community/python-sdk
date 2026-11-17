@@ -6,7 +6,7 @@ import base64
 import hashlib
 import json
 import secrets
-from asyncio import sleep
+from asyncio import Lock, sleep
 from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
 from typing import Any, Self
@@ -56,8 +56,8 @@ class HttpClient:
   def __repr__(self) -> str:
     return f'<{__class__.__name__} {self._session!r}>'
 
-  def _get_token(self) -> str | None:  # pragma: nocover
-    pass
+  async def _get_token(self) -> str:  # pragma: nocover
+    return ''
 
   async def _ensure_session(self) -> None:  # pragma: nocover
     pass
@@ -75,10 +75,10 @@ class HttpClient:
     if self._session.closed:
       raise Error('Client session is already closed.')
 
-    await self._ensure_session()
-
     if with_token:
-      headers['Authorization'] = f'Bearer {self._get_token()}'
+      await self._ensure_session()
+
+      headers['Authorization'] = f'Bearer {await self._get_token()}'
 
     headers['User-Agent'] = (
       f'topggpy (https://github.com/top-gg-community/python-sdk {VERSION}) Python/'
@@ -157,7 +157,7 @@ class ProjectClient(HttpClient):
   def __repr__(self) -> str:
     return f'<{__class__.__name__} {self._session!r}>'
 
-  def _get_token(self) -> str:
+  async def _get_token(self) -> str:
     return self._token
 
   async def _json_request(
@@ -822,7 +822,7 @@ class ApplicationClient(BaseApplicationClient):
   def __repr__(self) -> str:
     return f'<{__class__.__name__} {self._session!r}>'
 
-  def _get_token(self) -> str:
+  async def _get_token(self) -> str:
     return self._token
 
   async def __aenter__(self) -> Self:
@@ -1016,44 +1016,60 @@ class Oauth2Client(BaseApplicationClient):
   __slots__: tuple[str, ...] = (
     '_oauth2',
     '_oauth2_session',
+    '_oauth2_session_lock'
   )
 
   _oauth2: Oauth2
   _oauth2_session: Oauth2Session
+  _oauth2_session_lock: Lock
 
   def __init__(self, oauth2: Oauth2, session: Oauth2Session):
     super().__init__(oauth2._http._session)
 
     self._oauth2 = oauth2
     self._oauth2_session = session
+    self._oauth2_session_lock = Lock()
 
   def __repr__(self) -> str:
-    return f'<{__class__.__name__} oauth2={self._oauth2!r} oauth2_session={self._oauth2_session!r}>'
+    return f'<{__class__.__name__} oauth2={self._oauth2!r}>'
 
-  def _get_token(self) -> str:
-    return self._oauth2_session.token
+  async def _get_token(self) -> str:
+    async with self.session as session:
+      return session.token
 
   async def _ensure_session(self) -> None:
-    if not self.has_expired:
-      return
+    async with self.session as session:
+      if not session.has_expired:
+        return
 
-    body = f'grant_type=refresh_token&client_id={self._oauth2._client_id}&client_secret={self._oauth2._client_secret}&refresh_token={self._oauth2_session.refresh_token}'
+      body = f'grant_type=refresh_token&client_id={self._oauth2._client_id}&client_secret={self._oauth2._client_secret}&refresh_token={session.refresh_token}'
 
-    data = await self._oauth2._http._request(
-      'POST',
-      '/oauth2/token',
-      {'Content-Type': 'application/x-www-form-urlencoded'},
-      body=body,
-      with_token=False,
-    )
+      data = await self._oauth2._http._request(
+        'POST',
+        '/oauth2/token',
+        {'Content-Type': 'application/x-www-form-urlencoded'},
+        body=body,
+        with_token=False,
+      )
 
-    self._oauth2_session = Oauth2Session(json=data)
+      self._oauth2_session = Oauth2Session(json=data)
 
   @property
-  def has_expired(self) -> bool:
-    """Whether the client's session access token has expired."""
+  def session(self) -> Oauth2SessionGuard:
+    """The client's oauth2 session enclosed within a guard."""
 
-    return self._oauth2_session.has_expired
+    return Oauth2SessionGuard(self)
+
+  async def has_expired(self) -> bool:
+    """
+    Whether the client's session access token has expired.
+
+    :returns: Whether the client's session access token has expired.
+    :rtype: :py:class:`bool`
+    """
+
+    async with self.session as session:
+      return session.has_expired
 
   async def get_authorized_user(self) -> User:
     """
@@ -1125,10 +1141,29 @@ class Oauth2Client(BaseApplicationClient):
     :exception Ratelimited: The client is ratelimited from sending more requests.
     """
 
-    await self._oauth2._http._request(
-      'POST',
-      '/oauth2/revoke',
-      {'Content-Type': 'application/x-www-form-urlencoded'},
-      body=f'client_id={self._oauth2._client_id}&client_secret={self._oauth2._client_secret}&token={self._oauth2_session.refresh_token}',
-      with_token=False,
-    )
+    async with self.session as session:
+      await self._oauth2._http._request(
+        'POST',
+        '/oauth2/revoke',
+        {'Content-Type': 'application/x-www-form-urlencoded'},
+        body=f'client_id={self._oauth2._client_id}&client_secret={self._oauth2._client_secret}&token={session.refresh_token}',
+        with_token=False,
+      )
+
+
+@dataclass(frozen=True, repr=False, slots=True)
+class Oauth2SessionGuard:
+  """An oauth2 session guard. Use ``async with`` to retrieve the :class:`.Oauth2Session` inside."""
+
+  _client: Oauth2Client
+
+  def __repr__(self) -> str:  # pragma: nocover
+    return f'<{__class__.__name__} [{self._client!r}]>'
+
+  async def __aenter__(self) -> Oauth2Session:
+    await self._client._oauth2_session_lock.acquire()
+
+    return self._client._oauth2_session
+
+  async def __aexit__(self, *_, **__) -> None:
+    self._client._oauth2_session_lock.release()
