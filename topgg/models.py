@@ -589,15 +589,19 @@ class BaseWebhook:
 class Webhook(BaseWebhook, Model):
   """A webhook."""
 
-  __slots__: tuple[str, ...] = ('id',)
+  __slots__: tuple[str, ...] = ('id', 'secret')
 
   id: int
   """The webhook's Top.gg ID."""
+
+  secret: str | None
+  """The webhook's secret."""
 
   def __init__(self, json: dict):
     super().__init__(label=json['label'], url=json['url'])
 
     self.id = int(json['id'])
+    self.secret = json.get('secret')
 
   def __repr__(self) -> str:
     return f'<{__class__.__name__} id={self.id}>'
