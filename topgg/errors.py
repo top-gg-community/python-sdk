@@ -55,7 +55,7 @@ class RequestError(Error):
     """The error's code (e.g. ``PROJECT_NOT_FOUND``.)"""
 
     if self.data is not None:
-      return self.data.get('code')
+      return self.data.get('code', self.data.get('error'))
 
 
 class Ratelimited(Error):
