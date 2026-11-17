@@ -170,6 +170,8 @@ class ProjectClient(HttpClient):
     params: Query = None,
     body: Any = None,
   ) -> Any:
+    headers['Content-Type'] = 'application/json'
+    
     return await self._request(method, path, headers, params=params, body=body)
 
   async def get_project(self) -> Project:
@@ -406,6 +408,8 @@ class ApplicationClient(HttpClient):
     params: Query = None,
     body: Any = None,
   ) -> Any:
+    headers['Content-Type'] = 'application/json'
+    
     return await self._request(method, path, headers, params=params, body=body)
 
   async def get_projects(
@@ -1052,6 +1056,8 @@ class Oauth2Client(HttpClient):
     params: Query = None,
     body: Any = None,
   ) -> Any:
+    headers['Content-Type'] = 'application/json'
+    
     return await self._request(method, path, headers, params=params, body=body)
 
   @property
