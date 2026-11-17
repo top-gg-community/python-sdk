@@ -8,6 +8,7 @@ from .client import (
   Oauth2,
   Oauth2Client,
   Oauth2Session,
+  Oauth2SessionGuard,
   Oauth2URL,
   ProjectClient,
 )
@@ -63,6 +64,7 @@ __all__ = (
   'Oauth2',
   'Oauth2Client',
   'Oauth2Session',
+  'Oauth2SessionGuard',
   'Oauth2URL',
   'Paginated',
   'PartialProject',
