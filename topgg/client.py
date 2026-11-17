@@ -1029,7 +1029,7 @@ class Oauth2Client(HttpClient):
     return self._oauth2_session.token
 
   async def _ensure_session(self) -> None:
-    if not self._oauth2_session.has_expired:
+    if not self.has_expired:
       return
 
     body = f'grant_type=refresh_token&client_id={self._oauth2._client_id}&client_secret={self._oauth2._client_secret}&refresh_token={self._oauth2_session.refresh_token}'
