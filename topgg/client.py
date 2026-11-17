@@ -6,13 +6,14 @@ import base64
 import hashlib
 import json
 import secrets
-from asyncio import Lock, sleep
+from asyncio import sleep
 from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
 from typing import Any, Self
 from urllib.parse import quote_plus
 
 from aiohttp import ClientResponseError, ClientSession, ClientTimeout
+from fair_async_rlock import FairAsyncRLock
 from yarl import Query
 
 from .errors import Error, Ratelimited, RequestError
@@ -1037,14 +1038,14 @@ class Oauth2Client(BaseApplicationClient):
 
   _oauth2: Oauth2
   _oauth2_session: Oauth2Session
-  _oauth2_session_lock: Lock
+  _oauth2_session_lock: FairAsyncRLock
 
   def __init__(self, oauth2: Oauth2, session: Oauth2Session):
     super().__init__(oauth2._http._session)
 
     self._oauth2 = oauth2
     self._oauth2_session = session
-    self._oauth2_session_lock = Lock()
+    self._oauth2_session_lock = FairAsyncRLock()
 
   def __repr__(self) -> str:
     return f'<{__class__.__name__} oauth2={self._oauth2!r}>'
