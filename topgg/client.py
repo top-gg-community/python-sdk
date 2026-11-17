@@ -337,13 +337,13 @@ class ProjectClient(HttpClient):
     )
 
   async def get_vote(
-    self, user_id: int | str, source: UserSource
+    self, user_id: int, source: UserSource
   ) -> PartialVote | None:
     """
     Fetches the most recent vote for a specific user.
 
     :param user_id: The ID of the user to look up. The expected format depends on the source parameter.
-    :type user_id: :py:class:`int` | :py:class:`str`
+    :type user_id: :py:class:`int`
     :param source: The ID type being provided.
     :type source: :class:`.UserSource`
 
@@ -439,12 +439,12 @@ class ApplicationClient(HttpClient):
       await self._json_request('GET', '/projects', params=params),
     )
 
-  async def get_project(self, id: int | str) -> Project:
+  async def get_project(self, id: int) -> Project:
     """
     Fetches a project associated with the current token.
 
     :param id: The project's Top.gg ID.
-    :type id: :py:class:`int` | :py:class:`str`
+    :type id: :py:class:`int`
 
     :exception Error: The client is already closed.
     :exception RequestError: The client received a non-favorable response from the API.
@@ -457,13 +457,13 @@ class ApplicationClient(HttpClient):
     return Project(await self._json_request('GET', f'/projects/{id}'))
 
   async def edit_project(
-    self, id: int | str, headline: LocaleMap, page_content: LocaleMap
+    self, id: int, headline: LocaleMap, page_content: LocaleMap
   ) -> None:
     """
     Updates the headline and/or page content for a project. Both fields are locale-keyed, so you can set content for multiple languages in a single request.
 
     :param id: The project's Top.gg ID.
-    :type id: :py:class:`int` | :py:class:`str`
+    :type id: :py:class:`int`
     :param headline: A map of locales to headline strings. Each headline must be between 3 and 140 characters.
     :type headline: :class:`.LocaleMap`
     :param page_content: page_content A map of locales to page content strings (Markdown supported.) Each entry must be between 300 and 50,000 characters.
@@ -485,13 +485,13 @@ class ApplicationClient(HttpClient):
     )
 
   async def post_announcement(
-    self, id: int | str, title: str, content: str, category: AnnouncementCategory
+    self, id: int, title: str, content: str, category: AnnouncementCategory
   ) -> None:
     """
     Creates a new announcement for a project. Announcements appear on a project's page and can be used to notify users about updates, new features, or other news.
 
     :param id: The project's Top.gg ID.
-    :type id: :py:class:`int` | :py:class:`str`
+    :type id: :py:class:`int`
     :param title: The announcement's title.
     :type title: :py:class:`str`
     :param content: The announcement's body.
@@ -516,12 +516,12 @@ class ApplicationClient(HttpClient):
       body={'title': title, 'content': content, 'category': category.value},
     )
 
-  async def post_metrics(self, id: int | str, metrics: Metrics) -> None:
+  async def post_metrics(self, id: int, metrics: Metrics) -> None:
     """
     Submits a single metrics payload for a project. Use this to push fresh numbers after an event such as joining or leaving a guild player connecting.
 
     :param id: The project's Top.gg ID.
-    :type id: :py:class:`int` | :py:class:`str`
+    :type id: :py:class:`int`
     :param metrics: The metrics payload.
     :type metrics: :class:`.Metrics`
 
@@ -535,13 +535,13 @@ class ApplicationClient(HttpClient):
     )
 
   async def post_timestamped_metrics[M: Metrics](
-    self, id: int | str, metrics: TimestampedMetrics[M]
+    self, id: int, metrics: TimestampedMetrics[M]
   ) -> None:
     r"""
     Submits up to 100 metrics entries in a single request.
 
     :param id: The project's Top.gg ID.
-    :type id: :py:class:`int` | :py:class:`str`
+    :type id: :py:class:`int`
     :param metrics: The metrics payloads.
     :type metrics: :class:`.TimestampedMetrics`\ [:class:`.Metrics`\ ]
 
@@ -558,12 +558,12 @@ class ApplicationClient(HttpClient):
       'POST', f'/projects/{id}/metrics/batch', body={'data': metrics._json}
     )
 
-  async def post_commands(self, id: int | str, commands: list[dict]) -> None:
+  async def post_commands(self, id: int, commands: list[dict]) -> None:
     r"""
     Overwrites the list of slash command definitions for a bot project on Top.gg. This is only applicable to bot-type projects on the discord platform.
 
     :param id: The project's Top.gg ID.
-    :type id: :py:class:`int` | :py:class:`str`
+    :type id: :py:class:`int`
     :param commands: The array of slash commands in a JSON-stringified Discord API's application command structure format.
     :type commands: :py:class:`list`\ [:py:class:`dict`\ ]
 
@@ -576,7 +576,7 @@ class ApplicationClient(HttpClient):
 
   async def get_votes(
     self,
-    id: int | str,
+    id: int,
     *,
     since: datetime | None = None,
     reference: Paginated[Vote] | None = None,
@@ -585,7 +585,7 @@ class ApplicationClient(HttpClient):
     Fetches a cursor-paginated list of votes for a project, ordered by creation date (oldest first within each page.)
 
     :param id: The project's Top.gg ID.
-    :type id: :py:class:`int` | :py:class:`str`
+    :type id: :py:class:`int`
     :param since: The creation date frame of reference. Defaults to :py:obj:`None`.
     :type since: :py:class:`~datetime.datetime` | :py:obj:`None`
     :param reference: The previously returned paginated list as a starting reference. Defaults to :py:obj:`None`.
@@ -627,15 +627,15 @@ class ApplicationClient(HttpClient):
     )
 
   async def get_vote(
-    self, id: int | str, user_id: int | str, source: UserSource
+    self, id: int, user_id: int, source: UserSource
   ) -> PartialVote | None:
     """
     Fetches the most recent vote for a specific user.
 
     :param id: The project's Top.gg ID.
-    :type id: :py:class:`int` | :py:class:`str`
+    :type id: :py:class:`int`
     :param user_id: The ID of the user to look up. The expected format depends on the source parameter.
-    :type user_id: :py:class:`int` | :py:class:`str`
+    :type user_id: :py:class:`int`
     :param source: The ID type being provided.
     :type source: :class:`.UserSource`
 
@@ -657,12 +657,12 @@ class ApplicationClient(HttpClient):
       if error.status != 404 or error.code != 'VOTE_EXPIRED':  # pragma: nocover
         raise
 
-  async def get_integrations(self, id: int | str) -> list[Integration]:
+  async def get_integrations(self, id: int) -> list[Integration]:
     r"""
     Fetches the integrations available for a project and whether each one is connected.
 
     :param id: The project's Top.gg ID.
-    :type id: :py:class:`int` | :py:class:`str`
+    :type id: :py:class:`int`
 
     :exception Error: The client is already closed.
     :exception RequestError: The client received a non-favorable response from the API.
@@ -678,15 +678,15 @@ class ApplicationClient(HttpClient):
     ]
 
   async def connect_integration(
-    self, project_id: int | str, integration_id: int | str
+    self, project_id: int, integration_id: int
   ) -> None:
     """
     Connects an integration to the project. Top.gg runs the integration handshake and starts delivering events to it.
 
     :param project_id: The project's Top.gg ID.
-    :type project_id: :py:class:`int` | :py:class:`str`
+    :type project_id: :py:class:`int`
     :param integration_id: The integration's Top.gg ID.
-    :type integration_id: :py:class:`int` | :py:class:`str`
+    :type integration_id: :py:class:`int`
 
     :exception Error: The client is already closed.
     :exception RequestError: The client received a non-favorable response from the API.
@@ -698,15 +698,15 @@ class ApplicationClient(HttpClient):
     )
 
   async def disconnect_integration(
-    self, project_id: int | str, integration_id: int | str
+    self, project_id: int, integration_id: int
   ) -> None:
     """
     Disconnects an integration the application connected. The integration receives an integration.delete event.
 
     :param project_id: The project's Top.gg ID.
-    :type project_id: :py:class:`int` | :py:class:`str`
+    :type project_id: :py:class:`int`
     :param integration_id: The integration's Top.gg ID.
-    :type integration_id: :py:class:`int` | :py:class:`str`
+    :type integration_id: :py:class:`int`
 
     :exception Error: The client is already closed.
     :exception RequestError: The client received a non-favorable response from the API.
@@ -717,12 +717,12 @@ class ApplicationClient(HttpClient):
       'DELETE', f'/projects/{project_id}/integrations/{integration_id}'
     )
 
-  async def get_webhooks(self, id: int | str) -> list[Webhook]:
+  async def get_webhooks(self, id: int) -> list[Webhook]:
     r"""
     Fetches the webhooks the application created on the project.
 
     :param id: The project's Top.gg ID.
-    :type id: :py:class:`int` | :py:class:`str`
+    :type id: :py:class:`int`
 
     :exception Error: The client is already closed.
     :exception RequestError: The client received a non-favorable response from the API.
@@ -737,12 +737,12 @@ class ApplicationClient(HttpClient):
       for webhook in await self._json_request('GET', f'/projects/{id}/webhooks')
     ]
 
-  async def create_webhook(self, id: int | str, webhook: BaseWebhook) -> Webhook:
+  async def create_webhook(self, id: int, webhook: BaseWebhook) -> Webhook:
     """
     Creates a vote webhook on the project.
 
     :param id: The project's Top.gg ID.
-    :type id: :py:class:`int` | :py:class:`str`
+    :type id: :py:class:`int`
     :param webhook: The vote webhook.
     :type webhook: :class:`.BaseWebhook`
 
@@ -762,14 +762,14 @@ class ApplicationClient(HttpClient):
       )
     )
 
-  async def delete_webhook(self, project_id: int | str, webhook_id: int | str) -> None:
+  async def delete_webhook(self, project_id: int, webhook_id: int) -> None:
     """
     Deletes a webhook the application created.
 
     :param project_id: The project's Top.gg ID.
-    :type project_id: :py:class:`int` | :py:class:`str`
+    :type project_id: :py:class:`int`
     :param webhook_id: The webhook's Top.gg ID.
-    :type webhook_id: :py:class:`int` | :py:class:`str`
+    :type webhook_id: :py:class:`int`
 
     :exception Error: The client is already closed.
     :exception RequestError: The client received a non-favorable response from the API.
@@ -779,15 +779,15 @@ class ApplicationClient(HttpClient):
     await self._json_request('DELETE', f'/projects/{project_id}/webhooks/{webhook_id}')
 
   async def rotate_webhook_secret(
-    self, project_id: int | str, webhook_id: int | str
+    self, project_id: int, webhook_id: int
   ) -> str:
     """
     Replaces the signing secret of a webhook the application created. The previous secret stops working immediately.
 
     :param project_id: The project's Top.gg ID.
-    :type project_id: :py:class:`int` | :py:class:`str`
+    :type project_id: :py:class:`int`
     :param webhook_id: The webhook's Top.gg ID.
-    :type webhook_id: :py:class:`int` | :py:class:`str`
+    :type webhook_id: :py:class:`int`
 
     :exception Error: The client is already closed.
     :exception RequestError: The client received a non-favorable response from the API.
@@ -803,14 +803,14 @@ class ApplicationClient(HttpClient):
       )
     )['secret']
 
-  async def test_webhook(self, project_id: int | str, webhook_id: int | str) -> None:
+  async def test_webhook(self, project_id: int, webhook_id: int) -> None:
     """
     Sends a webhook.test event to a webhook the application created.
 
     :param project_id: The project's Top.gg ID.
-    :type project_id: :py:class:`int` | :py:class:`str`
+    :type project_id: :py:class:`int`
     :param webhook_id: The webhook's Top.gg ID.
-    :type webhook_id: :py:class:`int` | :py:class:`str`
+    :type webhook_id: :py:class:`int`
 
     :exception Error: The client is already closed.
     :exception RequestError: The client received a non-favorable response from the API.
@@ -932,7 +932,7 @@ class Oauth2:
     '_scope',
   )
 
-  _client_id: int | str
+  _client_id: int
   _client_secret: str
   _redirect_uri: str
   _scope: str
@@ -940,7 +940,7 @@ class Oauth2:
 
   def __init__(
     self,
-    client_id: int | str,
+    client_id: int,
     client_secret: str,
     redirect_uri: str,
     scopes: list[str],
@@ -1091,12 +1091,12 @@ class Oauth2Client(HttpClient):
       await self._json_request('GET', '/projects', params=params),
     )
 
-  async def get_project(self, id: int | str) -> Project:
+  async def get_project(self, id: int) -> Project:
     """
     Fetches a project associated with the current token.
 
     :param id: The project's Top.gg ID.
-    :type id: :py:class:`int` | :py:class:`str`
+    :type id: :py:class:`int`
 
     :exception Error: The client is already closed.
     :exception RequestError: The client received a non-favorable response from the API.
@@ -1109,13 +1109,13 @@ class Oauth2Client(HttpClient):
     return Project(await self._json_request('GET', f'/projects/{id}'))
 
   async def edit_project(
-    self, id: int | str, headline: LocaleMap, page_content: LocaleMap
+    self, id: int, headline: LocaleMap, page_content: LocaleMap
   ) -> None:
     """
     Updates the headline and/or page content for a project. Both fields are locale-keyed, so you can set content for multiple languages in a single request.
 
     :param id: The project's Top.gg ID.
-    :type id: :py:class:`int` | :py:class:`str`
+    :type id: :py:class:`int`
     :param headline: A map of locales to headline strings. Each headline must be between 3 and 140 characters.
     :type headline: :class:`.LocaleMap`
     :param page_content: page_content A map of locales to page content strings (Markdown supported.) Each entry must be between 300 and 50,000 characters.
@@ -1137,13 +1137,13 @@ class Oauth2Client(HttpClient):
     )
 
   async def post_announcement(
-    self, id: int | str, title: str, content: str, category: AnnouncementCategory
+    self, id: int, title: str, content: str, category: AnnouncementCategory
   ) -> None:
     """
     Creates a new announcement for a project. Announcements appear on a project's page and can be used to notify users about updates, new features, or other news.
 
     :param id: The project's Top.gg ID.
-    :type id: :py:class:`int` | :py:class:`str`
+    :type id: :py:class:`int`
     :param title: The announcement's title.
     :type title: :py:class:`str`
     :param content: The announcement's body.
@@ -1168,12 +1168,12 @@ class Oauth2Client(HttpClient):
       body={'title': title, 'content': content, 'category': category.value},
     )
 
-  async def post_metrics(self, id: int | str, metrics: Metrics) -> None:
+  async def post_metrics(self, id: int, metrics: Metrics) -> None:
     """
     Submits a single metrics payload for a project. Use this to push fresh numbers after an event such as joining or leaving a guild player connecting.
 
     :param id: The project's Top.gg ID.
-    :type id: :py:class:`int` | :py:class:`str`
+    :type id: :py:class:`int`
     :param metrics: The metrics payload.
     :type metrics: :class:`.Metrics`
 
@@ -1187,13 +1187,13 @@ class Oauth2Client(HttpClient):
     )
 
   async def post_timestamped_metrics[M: Metrics](
-    self, id: int | str, metrics: TimestampedMetrics[M]
+    self, id: int, metrics: TimestampedMetrics[M]
   ) -> None:
     r"""
     Submits up to 100 metrics entries in a single request.
 
     :param id: The project's Top.gg ID.
-    :type id: :py:class:`int` | :py:class:`str`
+    :type id: :py:class:`int`
     :param metrics: The metrics payloads.
     :type metrics: :class:`.TimestampedMetrics`\ [:class:`.Metrics`\ ]
 
@@ -1210,12 +1210,12 @@ class Oauth2Client(HttpClient):
       'POST', f'/projects/{id}/metrics/batch', body={'data': metrics._json}
     )
 
-  async def post_commands(self, id: int | str, commands: list[dict]) -> None:
+  async def post_commands(self, id: int, commands: list[dict]) -> None:
     r"""
     Overwrites the list of slash command definitions for a bot project on Top.gg. This is only applicable to bot-type projects on the discord platform.
 
     :param id: The project's Top.gg ID.
-    :type id: :py:class:`int` | :py:class:`str`
+    :type id: :py:class:`int`
     :param commands: The array of slash commands in a JSON-stringified Discord API's application command structure format.
     :type commands: :py:class:`list`\ [:py:class:`dict`\ ]
 
@@ -1228,7 +1228,7 @@ class Oauth2Client(HttpClient):
 
   async def get_votes(
     self,
-    id: int | str,
+    id: int,
     *,
     since: datetime | None = None,
     reference: Paginated[Vote] | None = None,
@@ -1237,7 +1237,7 @@ class Oauth2Client(HttpClient):
     Fetches a cursor-paginated list of votes for a project, ordered by creation date (oldest first within each page.)
 
     :param id: The project's Top.gg ID.
-    :type id: :py:class:`int` | :py:class:`str`
+    :type id: :py:class:`int`
     :param since: The creation date frame of reference. Defaults to :py:obj:`None`.
     :type since: :py:class:`~datetime.datetime` | :py:obj:`None`
     :param reference: The previously returned paginated list as a starting reference. Defaults to :py:obj:`None`.
@@ -1279,15 +1279,15 @@ class Oauth2Client(HttpClient):
     )
 
   async def get_vote(
-    self, id: int | str, user_id: int | str, source: UserSource
+    self, id: int, user_id: int, source: UserSource
   ) -> PartialVote | None:
     """
     Fetches the most recent vote for a specific user.
 
     :param id: The project's Top.gg ID.
-    :type id: :py:class:`int` | :py:class:`str`
+    :type id: :py:class:`int`
     :param user_id: The ID of the user to look up. The expected format depends on the source parameter.
-    :type user_id: :py:class:`int` | :py:class:`str`
+    :type user_id: :py:class:`int`
     :param source: The ID type being provided.
     :type source: :class:`.UserSource`
 
@@ -1309,12 +1309,12 @@ class Oauth2Client(HttpClient):
       if error.status != 404 or error.code != 'VOTE_EXPIRED':  # pragma: nocover
         raise
 
-  async def get_integrations(self, id: int | str) -> list[Integration]:
+  async def get_integrations(self, id: int) -> list[Integration]:
     r"""
     Fetches the integrations available for a project and whether each one is connected.
 
     :param id: The project's Top.gg ID.
-    :type id: :py:class:`int` | :py:class:`str`
+    :type id: :py:class:`int`
 
     :exception Error: The client is already closed.
     :exception RequestError: The client received a non-favorable response from the API.
@@ -1330,15 +1330,15 @@ class Oauth2Client(HttpClient):
     ]
 
   async def connect_integration(
-    self, project_id: int | str, integration_id: int | str
+    self, project_id: int, integration_id: int
   ) -> None:
     """
     Connects an integration to the project. Top.gg runs the integration handshake and starts delivering events to it.
 
     :param project_id: The project's Top.gg ID.
-    :type project_id: :py:class:`int` | :py:class:`str`
+    :type project_id: :py:class:`int`
     :param integration_id: The integration's Top.gg ID.
-    :type integration_id: :py:class:`int` | :py:class:`str`
+    :type integration_id: :py:class:`int`
 
     :exception Error: The client is already closed.
     :exception RequestError: The client received a non-favorable response from the API.
@@ -1350,15 +1350,15 @@ class Oauth2Client(HttpClient):
     )
 
   async def disconnect_integration(
-    self, project_id: int | str, integration_id: int | str
+    self, project_id: int, integration_id: int
   ) -> None:
     """
     Disconnects an integration the application connected. The integration receives an integration.delete event.
 
     :param project_id: The project's Top.gg ID.
-    :type project_id: :py:class:`int` | :py:class:`str`
+    :type project_id: :py:class:`int`
     :param integration_id: The integration's Top.gg ID.
-    :type integration_id: :py:class:`int` | :py:class:`str`
+    :type integration_id: :py:class:`int`
 
     :exception Error: The client is already closed.
     :exception RequestError: The client received a non-favorable response from the API.
@@ -1369,12 +1369,12 @@ class Oauth2Client(HttpClient):
       'DELETE', f'/projects/{project_id}/integrations/{integration_id}'
     )
 
-  async def get_webhooks(self, id: int | str) -> list[Webhook]:
+  async def get_webhooks(self, id: int) -> list[Webhook]:
     r"""
     Fetches the webhooks the application created on the project.
 
     :param id: The project's Top.gg ID.
-    :type id: :py:class:`int` | :py:class:`str`
+    :type id: :py:class:`int`
 
     :exception Error: The client is already closed.
     :exception RequestError: The client received a non-favorable response from the API.
@@ -1389,12 +1389,12 @@ class Oauth2Client(HttpClient):
       for webhook in await self._json_request('GET', f'/projects/{id}/webhooks')
     ]
 
-  async def create_webhook(self, id: int | str, webhook: BaseWebhook) -> Webhook:
+  async def create_webhook(self, id: int, webhook: BaseWebhook) -> Webhook:
     """
     Creates a vote webhook on the project.
 
     :param id: The project's Top.gg ID.
-    :type id: :py:class:`int` | :py:class:`str`
+    :type id: :py:class:`int`
     :param webhook: The vote webhook.
     :type webhook: :class:`.BaseWebhook`
 
@@ -1414,14 +1414,14 @@ class Oauth2Client(HttpClient):
       )
     )
 
-  async def delete_webhook(self, project_id: int | str, webhook_id: int | str) -> None:
+  async def delete_webhook(self, project_id: int, webhook_id: int) -> None:
     """
     Deletes a webhook the application created.
 
     :param project_id: The project's Top.gg ID.
-    :type project_id: :py:class:`int` | :py:class:`str`
+    :type project_id: :py:class:`int`
     :param webhook_id: The webhook's Top.gg ID.
-    :type webhook_id: :py:class:`int` | :py:class:`str`
+    :type webhook_id: :py:class:`int`
 
     :exception Error: The client is already closed.
     :exception RequestError: The client received a non-favorable response from the API.
@@ -1431,15 +1431,15 @@ class Oauth2Client(HttpClient):
     await self._json_request('DELETE', f'/projects/{project_id}/webhooks/{webhook_id}')
 
   async def rotate_webhook_secret(
-    self, project_id: int | str, webhook_id: int | str
+    self, project_id: int, webhook_id: int
   ) -> str:
     """
     Replaces the signing secret of a webhook the application created. The previous secret stops working immediately.
 
     :param project_id: The project's Top.gg ID.
-    :type project_id: :py:class:`int` | :py:class:`str`
+    :type project_id: :py:class:`int`
     :param webhook_id: The webhook's Top.gg ID.
-    :type webhook_id: :py:class:`int` | :py:class:`str`
+    :type webhook_id: :py:class:`int`
 
     :exception Error: The client is already closed.
     :exception RequestError: The client received a non-favorable response from the API.
@@ -1455,14 +1455,14 @@ class Oauth2Client(HttpClient):
       )
     )['secret']
 
-  async def test_webhook(self, project_id: int | str, webhook_id: int | str) -> None:
+  async def test_webhook(self, project_id: int, webhook_id: int) -> None:
     """
     Sends a webhook.test event to a webhook the application created.
 
     :param project_id: The project's Top.gg ID.
-    :type project_id: :py:class:`int` | :py:class:`str`
+    :type project_id: :py:class:`int`
     :param webhook_id: The webhook's Top.gg ID.
-    :type webhook_id: :py:class:`int` | :py:class:`str`
+    :type webhook_id: :py:class:`int`
 
     :exception Error: The client is already closed.
     :exception RequestError: The client received a non-favorable response from the API.
