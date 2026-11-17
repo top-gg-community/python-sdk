@@ -374,7 +374,7 @@ class ProjectClient(HttpClient):
 
 class ApplicationClient(HttpClient):
   """
-  An API client using a application token.
+  An API client using an application token.
 
   :param token: The application token to use.
   :type token: :py:class:`str`
