@@ -170,7 +170,7 @@ class ProjectClient(HttpClient):
     body: Any = None,
   ) -> Any:
     headers['Content-Type'] = 'application/json'
-    
+
     return await self._request(method, path, headers, params=params, body=body)
 
   async def get_project(self) -> Project:
@@ -337,9 +337,7 @@ class ProjectClient(HttpClient):
       await self._json_request('GET', '/projects/@me/votes', params=params),
     )
 
-  async def get_vote(
-    self, user_id: int, source: UserSource
-  ) -> PartialVote | None:
+  async def get_vote(self, user_id: int, source: UserSource) -> PartialVote | None:
     """
     Fetches the most recent vote for a specific user.
 
@@ -390,7 +388,7 @@ class BaseApplicationClient(HttpClient):
     body: Any = None,
   ) -> Any:
     headers['Content-Type'] = 'application/json'
-    
+
     return await self._request(method, path, headers, params=params, body=body)
 
   async def get_projects(
@@ -663,9 +661,7 @@ class BaseApplicationClient(HttpClient):
       for integration in await self._json_request('GET', f'/projects/{id}/integrations')
     ]
 
-  async def connect_integration(
-    self, project_id: int, integration_id: int
-  ) -> None:
+  async def connect_integration(self, project_id: int, integration_id: int) -> None:
     """
     Connects an integration to the project. Top.gg runs the integration handshake and starts delivering events to it.
 
@@ -683,9 +679,7 @@ class BaseApplicationClient(HttpClient):
       'PUT', f'/projects/{project_id}/integrations/{integration_id}'
     )
 
-  async def disconnect_integration(
-    self, project_id: int, integration_id: int
-  ) -> None:
+  async def disconnect_integration(self, project_id: int, integration_id: int) -> None:
     """
     Disconnects an integration the application connected. The integration receives an integration.delete event.
 
@@ -764,9 +758,7 @@ class BaseApplicationClient(HttpClient):
 
     await self._json_request('DELETE', f'/projects/{project_id}/webhooks/{webhook_id}')
 
-  async def rotate_webhook_secret(
-    self, project_id: int, webhook_id: int
-  ) -> str:
+  async def rotate_webhook_secret(self, project_id: int, webhook_id: int) -> str:
     """
     Replaces the signing secret of a webhook the application created. The previous secret stops working immediately.
 
@@ -928,7 +920,7 @@ class Oauth2URL:
       '/oauth2/token',
       {'Content-Type': 'application/x-www-form-urlencoded'},
       body=body,
-      with_token=False
+      with_token=False,
     )
 
     return Oauth2Session(json=data)
@@ -1052,7 +1044,7 @@ class Oauth2Client(BaseApplicationClient):
       '/oauth2/token',
       {'Content-Type': 'application/x-www-form-urlencoded'},
       body=body,
-      with_token=False
+      with_token=False,
     )
 
     self._oauth2_session = Oauth2Session(json=data)
@@ -1138,5 +1130,5 @@ class Oauth2Client(BaseApplicationClient):
       '/oauth2/revoke',
       {'Content-Type': 'application/x-www-form-urlencoded'},
       body=f'client_id={self._oauth2._client_id}&client_secret={self._oauth2._client_secret}&token={self._oauth2_session.refresh_token}',
-      with_token=False
+      with_token=False,
     )
