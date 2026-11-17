@@ -871,6 +871,13 @@ class Oauth2Session:
       seconds=json['expires_in']
     )
 
+  def _update(self, json: dict) -> None:
+    self.token = json['access_token']
+    self.refresh_token = json['refresh_token']
+    self.expires_at = datetime.now(UTC) + timedelta(
+      seconds=json['expires_in']
+    )
+
   def __repr__(self) -> str:
     return f'<{__class__.__name__} expires_at={self.expires_at!r}>'
 
@@ -1052,7 +1059,7 @@ class Oauth2Client(BaseApplicationClient):
         with_token=False,
       )
 
-      self._oauth2_session = Oauth2Session(json=data)
+      session._update(data)
 
   @property
   def session(self) -> Oauth2SessionGuard:
