@@ -12,50 +12,36 @@ class Error(Exception):
 class RequestError(Error):
   """Thrown upon HTTP request failure. Extends :class:`.Error`."""
 
-  __slots__: tuple[str, ...] = ('data', 'status')
+  __slots__: tuple[str, ...] = ('type', 'title', 'status', 'detail', 'code')
 
-  data: dict | None
-  """The JSON error data returned from the API."""
+  type: str | None
+  """The URI identifying the error type."""
+
+  title: str | None
+  """The error's short human-readable summary."""
 
   status: int | None
-  """The status code returned from the API."""
+  """The error's HTTP status code."""
+
+  detail: str | None
+  """The human-readable explanation of this specific occurrence."""
+
+  code: str | None
+  """The error's code (e.g. ``PROJECT_NOT_FOUND``.)"""
 
   def __init__(self, data: dict | None, status: int | None):
-    self.data = data
-    self.status = status
+    data = data or {}
+
+    self.type = data.get('type')
+    self.title = data.get('title')
+    self.status = status or data.get('status')
+    self.detail = data.get('detail')
+    self.code = data.get('code', data.get('error'))
 
     super().__init__(f'Got {status}: {data!r}')
 
   def __repr__(self) -> str:
-    return f'<{__class__.__name__} type={self.type!r} title={self.title!r} status={self.status} detail={self.detail!r} code={self.code!r} data={self.data!r}>'
-
-  @property
-  def type(self) -> str | None:
-    """The URI identifying the error type."""
-
-    if self.data is not None:
-      return self.data.get('type')
-
-  @property
-  def title(self) -> str | None:
-    """The error's short human-readable summary."""
-
-    if self.data is not None:
-      return self.data.get('title')
-
-  @property
-  def detail(self) -> str | None:
-    """The human-readable explanation of this specific occurrence."""
-
-    if self.data is not None:
-      return self.data.get('detail')
-
-  @property
-  def code(self) -> str | None:
-    """The error's code (e.g. ``PROJECT_NOT_FOUND``.)"""
-
-    if self.data is not None:
-      return self.data.get('code', self.data.get('error'))
+    return f'<{__class__.__name__} type={self.type!r} title={self.title!r} status={self.status} detail={self.detail!r} code={self.code!r}>'
 
 
 class Ratelimited(Error):
