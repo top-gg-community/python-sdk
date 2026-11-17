@@ -18,7 +18,7 @@ import topgg
 @pytest_asyncio.fixture
 async def oauth2() -> AsyncGenerator[topgg.Oauth2, None]:
   manager = topgg.Oauth2(
-    '',
+    5,
     '',
     'http://localhost:3000/topgg/oauth2',
     [
