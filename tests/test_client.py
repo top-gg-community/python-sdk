@@ -43,7 +43,7 @@ async def test_Client_basic_error_handling_works() -> None:
 async def test_Client_request_error_handling_works(
   monkeypatch: pytest.MonkeyPatch, client: topgg.Client
 ) -> None:
-  with RequestMock(404, 'Not Found', response='mocks/404.json') as request:
+  with RequestMock(404, 'Not Found', response='mocks/404_standard.json') as request:
     monkeypatch.setattr('aiohttp.ClientSession.request', request)
 
     with pytest.raises(topgg.RequestError, match='^Got 404: ') as raises:
@@ -407,7 +407,7 @@ async def test_Client_get_vote_works(
 
     request.assert_called_once()
 
-  with RequestMock(404, 'Not Found', response={}) as request:
+  with RequestMock(404, 'Not Found', response='mocks/404_not_voted.json') as request:
     monkeypatch.setattr('aiohttp.ClientSession.request', request)
 
     vote = await client.get_vote(661200758510977084, topgg.UserSource.DISCORD)

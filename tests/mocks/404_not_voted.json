@@ -1,0 +1,7 @@
+{
+  "type": "https://tools.ietf.org/html/rfc9110#section-15.5.5",
+  "title": "Vote expired",
+  "status": 404,
+  "detail": "User has not voted in the last 12 hours.",
+  "code": "VOTE_EXPIRED"
+}

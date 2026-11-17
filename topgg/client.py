@@ -113,7 +113,7 @@ class HttpClient:
 
           return await self._request(method, path, headers, params=params, body=body)
 
-      raise RequestError(output and output.get('detail', output), status) from None
+      raise RequestError(output, status) from None
 
   async def close(self) -> None:
     """Closes the :class:`.HttpClient` object. Nothing will happen if the client uses a pre-existing :class:`~aiohttp.ClientSession` or if the session is already closed."""
@@ -402,7 +402,7 @@ class BaseClient(ABC):
         )
       )
     except RequestError as error:
-      if error.status != 404:  # pragma: nocover
+      if error.status != 404 or error.code != 'VOTE_EXPIRED':  # pragma: nocover
         raise
 
   async def get_integrations(self, id: int | str) -> list[Integration]:
