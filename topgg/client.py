@@ -844,6 +844,8 @@ class Oauth2Session:
   :type expires_at: :py:class:`~datetime.datetime` | :py:obj:`None`
   :param json: The API's raw JSON format.
   :type json: :py:class:`dict`
+
+  :exception Error: At least one of the token, refresh_token, and expires_at arguments are not specified.
   """
 
   __slots__: tuple[str, ...] = ('expires_at', 'refresh_token', 'token')
@@ -865,18 +867,27 @@ class Oauth2Session:
     expires_at: datetime | None = None,
     json: dict = {},
   ):
-    self.token = token or json['access_token']
-    self.refresh_token = refresh_token or json['refresh_token']
-    self.expires_at = expires_at or datetime.now(UTC) + timedelta(
-      seconds=json['expires_in']
-    )
+    token = json.get('access_token', token)
+    refresh_token = json.get('refresh_token', refresh_token)
+
+    if expires_in := json.get('expires_in'):
+      _expires_at = datetime.now(UTC) + timedelta(seconds=expires_in)
+    else:
+      _expires_at = expires_at
+
+    if token is None or refresh_token is None or _expires_at is None:
+      raise Error(
+        'The token, refresh_token, and expires_at arguments must be specified.'
+      )
+
+    self.token = token
+    self.refresh_token = refresh_token
+    self.expires_at = _expires_at
 
   def _update(self, json: dict) -> None:
     self.token = json['access_token']
     self.refresh_token = json['refresh_token']
-    self.expires_at = datetime.now(UTC) + timedelta(
-      seconds=json['expires_in']
-    )
+    self.expires_at = datetime.now(UTC) + timedelta(seconds=json['expires_in'])
 
   def __repr__(self) -> str:
     return f'<{__class__.__name__} expires_at={self.expires_at!r}>'
@@ -1020,11 +1031,7 @@ class Oauth2:
 class Oauth2Client(BaseApplicationClient):
   """An oauth2 API client."""
 
-  __slots__: tuple[str, ...] = (
-    '_oauth2',
-    '_oauth2_session',
-    '_oauth2_session_lock'
-  )
+  __slots__: tuple[str, ...] = ('_oauth2', '_oauth2_session', '_oauth2_session_lock')
 
   _oauth2: Oauth2
   _oauth2_session: Oauth2Session

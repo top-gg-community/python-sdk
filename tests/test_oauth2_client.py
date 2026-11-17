@@ -63,6 +63,12 @@ async def test_Oauth2_exchange_works(
   monkeypatch: pytest.MonkeyPatch,
   oauth2: topgg.Oauth2,
 ) -> None:
+  with pytest.raises(
+    topgg.Error,
+    match=r'^The token, refresh_token, and expires_at arguments must be specified\.$',
+  ):
+    topgg.Oauth2Session(token='', refresh_token='')
+
   with RequestMock(200, 'OK', response='mocks/post_oauth2_token.json') as request:
     monkeypatch.setattr('aiohttp.ClientSession.request', request)
 
@@ -71,9 +77,7 @@ async def test_Oauth2_exchange_works(
     _test_attributes(session)
 
     client = oauth2.new_client(
-      topgg.Oauth2Session(
-        json={'access_token': '', 'refresh_token': '', 'expires_in': 0}
-      )
+      topgg.Oauth2Session(token='', refresh_token='', expires_at=datetime.now(UTC))
     )
     _test_attributes(client)
 
