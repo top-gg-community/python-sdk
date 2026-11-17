@@ -821,6 +821,12 @@ class ApplicationClient(HttpClient):
       'POST', f'/projects/{project_id}/webhooks/{webhook_id}/test'
     )
 
+  async def __aenter__(self) -> Self:
+    return self
+
+  async def __aexit__(self, *_, **__) -> None:
+    await self.close()
+
 
 class Oauth2Session:
   """
