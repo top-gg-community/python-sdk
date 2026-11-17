@@ -374,30 +374,11 @@ class ProjectClient(HttpClient):
     await self.close()
 
 
-class ApplicationClient(HttpClient):
-  """
-  An API client using an application token.
+class BaseApplicationClient(HttpClient):
+  __slots__: tuple[str, ...] = ()
 
-  :param token: The application token to use.
-  :type token: :py:class:`str`
-  :param session: Whether to use an existing :class:`~aiohttp.ClientSession` for requesting or not. Defaults to :py:obj:`None` (creates a new one instead).
-  :type session: :class:`~aiohttp.ClientSession` | :py:obj:`None`
-  """
-
-  __slots__: tuple[str, ...] = ('_token',)
-
-  _token: str
-
-  def __init__(self, token: str, *, session: ClientSession | None = None):
+  def __init__(self, session: ClientSession | None = None):
     super().__init__(session)
-
-    self._token = token
-
-  def __repr__(self) -> str:
-    return f'<{__class__.__name__} {self._session!r}>'
-
-  def _get_token(self) -> str:
-    return self._token
 
   async def _json_request(
     self,
@@ -825,6 +806,32 @@ class ApplicationClient(HttpClient):
     await self._json_request(
       'POST', f'/projects/{project_id}/webhooks/{webhook_id}/test'
     )
+
+
+class ApplicationClient(BaseApplicationClient):
+  """
+  An API client using an application token.
+
+  :param token: The application token to use.
+  :type token: :py:class:`str`
+  :param session: Whether to use an existing :class:`~aiohttp.ClientSession` for requesting or not. Defaults to :py:obj:`None` (creates a new one instead).
+  :type session: :class:`~aiohttp.ClientSession` | :py:obj:`None`
+  """
+
+  __slots__: tuple[str, ...] = ('_token',)
+
+  _token: str
+
+  def __init__(self, token: str, *, session: ClientSession | None = None):
+    super().__init__(session)
+
+    self._token = token
+
+  def __repr__(self) -> str:
+    return f'<{__class__.__name__} {self._session!r}>'
+
+  def _get_token(self) -> str:
+    return self._token
 
   async def __aenter__(self) -> Self:
     return self
@@ -1011,7 +1018,7 @@ class Oauth2:
     await self._http.close()
 
 
-class Oauth2Client(HttpClient):
+class Oauth2Client(BaseApplicationClient):
   """An oauth2 API client."""
 
   __slots__: tuple[str, ...] = (
@@ -1023,7 +1030,7 @@ class Oauth2Client(HttpClient):
   _oauth2_session: Oauth2Session
 
   def __init__(self, oauth2: Oauth2, session: Oauth2Session):
-    super().__init__(session=oauth2._http._session)
+    super().__init__(oauth2._http._session)
 
     self._oauth2 = oauth2
     self._oauth2_session = session
@@ -1050,438 +1057,11 @@ class Oauth2Client(HttpClient):
 
     self._oauth2_session = Oauth2Session(json=data)
 
-  async def _json_request(
-    self,
-    method: str,
-    path: str,
-    *,
-    headers: dict[str, Any] = {},
-    params: Query = None,
-    body: Any = None,
-  ) -> Any:
-    headers['Content-Type'] = 'application/json'
-    
-    return await self._request(method, path, headers, params=params, body=body)
-
   @property
   def has_expired(self) -> bool:
     """Whether the client's session access token has expired."""
 
     return self._oauth2_session.has_expired
-
-  async def get_projects(
-    self, reference: Paginated[PartialProject] | None = None
-  ) -> Paginated[PartialProject]:
-    r"""
-    Fetches the projects the current credential covers.
-
-    :param reference: The previously returned paginated list as a starting reference. Defaults to :py:obj:`None`.
-    :type reference: :class:`.Paginated`\ [:class:`.PartialProject`\ ] | :py:obj:`None`
-
-    :exception Error: The reference is already on the last page or the client is already closed.
-    :exception RequestError: The client received a non-favorable response from the API.
-    :exception Ratelimited: The client is ratelimited from sending more requests.
-
-    :returns: The projects the current credential covers.
-    :rtype: :class:`.Paginated`\ [:class:`.PartialProject`\ ]
-    """
-
-    if getattr(reference, 'is_last', False):
-      raise Error('The reference is already on the last page.')
-
-    params = {}
-
-    if cursor := getattr(reference, '_cursor', None):  # pragma: nocover
-      params['cursor'] = cursor
-
-    return Paginated(
-      PartialProject,
-      'projects',
-      await self._json_request('GET', '/projects', params=params),
-    )
-
-  async def get_project(self, id: int) -> Project:
-    """
-    Fetches a project associated with the current token.
-
-    :param id: The project's Top.gg ID.
-    :type id: :py:class:`int`
-
-    :exception Error: The client is already closed.
-    :exception RequestError: The client received a non-favorable response from the API.
-    :exception Ratelimited: The client is ratelimited from sending more requests.
-
-    :returns: A project associated with the current token.
-    :rtype: :class:`~.models.Project`
-    """
-
-    return Project(await self._json_request('GET', f'/projects/{id}'))
-
-  async def edit_project(
-    self, id: int, headline: LocaleMap, page_content: LocaleMap
-  ) -> None:
-    """
-    Updates the headline and/or page content for a project. Both fields are locale-keyed, so you can set content for multiple languages in a single request.
-
-    :param id: The project's Top.gg ID.
-    :type id: :py:class:`int`
-    :param headline: A map of locales to headline strings. Each headline must be between 3 and 140 characters.
-    :type headline: :class:`.LocaleMap`
-    :param page_content: page_content A map of locales to page content strings (Markdown supported.) Each entry must be between 300 and 50,000 characters.
-    :type page_content: :class:`.LocaleMap`
-
-    :exception ValueError: The headline or page_content length does not match the required ranges.
-    :exception Error: The client is already closed.
-    :exception RequestError: The client received a non-favorable response from the API.
-    :exception Ratelimited: The client is ratelimited from sending more requests.
-    """
-
-    headline._enforce_constraints(3, 140)
-    page_content._enforce_constraints(300, 50000)
-
-    await self._json_request(
-      'PATCH',
-      f'/projects/{id}',
-      body={'headline': headline._json, 'page_content': page_content._json},
-    )
-
-  async def post_announcement(
-    self, id: int, title: str, content: str, category: AnnouncementCategory
-  ) -> None:
-    """
-    Creates a new announcement for a project. Announcements appear on a project's page and can be used to notify users about updates, new features, or other news.
-
-    :param id: The project's Top.gg ID.
-    :type id: :py:class:`int`
-    :param title: The announcement's title.
-    :type title: :py:class:`str`
-    :param content: The announcement's body.
-    :type content: :py:class:`str`
-    :param category: The category to publish the announcement under.
-    :type category: :class:`.AnnouncementCategory`
-
-    :exception ValueError: The title or content length does not match the required ranges.
-    :exception Error: The client is already closed.
-    :exception RequestError: The client received a non-favorable response from the API.
-    :exception Ratelimited: The client is ratelimited from sending more requests.
-    """
-
-    if not (3 <= len(title) <= 100):
-      raise ValueError('Title length is outside of the accepted range.')
-    elif not (100 <= len(content) <= 2000):
-      raise ValueError('Content length is outside of the accepted range.')
-
-    await self._json_request(
-      'POST',
-      f'/projects/{id}/announcements',
-      body={'title': title, 'content': content, 'category': category.value},
-    )
-
-  async def post_metrics(self, id: int, metrics: Metrics) -> None:
-    """
-    Submits a single metrics payload for a project. Use this to push fresh numbers after an event such as joining or leaving a guild player connecting.
-
-    :param id: The project's Top.gg ID.
-    :type id: :py:class:`int`
-    :param metrics: The metrics payload.
-    :type metrics: :class:`.Metrics`
-
-    :exception Error: The client is already closed.
-    :exception RequestError: The client received a non-favorable response from the API.
-    :exception Ratelimited: The client is ratelimited from sending more requests.
-    """
-
-    await self._json_request(
-      'PATCH', f'/projects/{id}/metrics', body=metrics._to_json()
-    )
-
-  async def post_timestamped_metrics[M: Metrics](
-    self, id: int, metrics: TimestampedMetrics[M]
-  ) -> None:
-    r"""
-    Submits up to 100 metrics entries in a single request.
-
-    :param id: The project's Top.gg ID.
-    :type id: :py:class:`int`
-    :param metrics: The metrics payloads.
-    :type metrics: :class:`.TimestampedMetrics`\ [:class:`.Metrics`\ ]
-
-    :exception ValueError: The metrics entries length does not match the required range.
-    :exception Error: The client is already closed.
-    :exception RequestError: The client received a non-favorable response from the API.
-    :exception Ratelimited: The client is ratelimited from sending more requests.
-    """
-
-    if not (1 <= len(metrics._json) <= 100):
-      raise ValueError('Batch length is outside of the accepted range.')
-
-    await self._json_request(
-      'POST', f'/projects/{id}/metrics/batch', body={'data': metrics._json}
-    )
-
-  async def post_commands(self, id: int, commands: list[dict]) -> None:
-    r"""
-    Overwrites the list of slash command definitions for a bot project on Top.gg. This is only applicable to bot-type projects on the discord platform.
-
-    :param id: The project's Top.gg ID.
-    :type id: :py:class:`int`
-    :param commands: The array of slash commands in a JSON-stringified Discord API's application command structure format.
-    :type commands: :py:class:`list`\ [:py:class:`dict`\ ]
-
-    :exception Error: The client is already closed.
-    :exception RequestError: The client received a non-favorable response from the API.
-    :exception Ratelimited: The client is ratelimited from sending more requests.
-    """
-
-    await self._json_request('PUT', f'/projects/{id}/commands', body=commands)
-
-  async def get_votes(
-    self,
-    id: int,
-    *,
-    since: datetime | None = None,
-    reference: Paginated[Vote] | None = None,
-  ) -> Paginated[Vote]:
-    r"""
-    Fetches a cursor-paginated list of votes for a project, ordered by creation date (oldest first within each page.)
-
-    :param id: The project's Top.gg ID.
-    :type id: :py:class:`int`
-    :param since: The creation date frame of reference. Defaults to :py:obj:`None`.
-    :type since: :py:class:`~datetime.datetime` | :py:obj:`None`
-    :param reference: The previously returned paginated list as a starting reference. Defaults to :py:obj:`None`.
-    :type reference: :class:`.Paginated`\ [:class:`.Vote`\ ] | :py:obj:`None`
-
-    :exception ValueError: Missing required arguments or the creation date frame of reference is invalid.
-    :exception Error: The reference is already on the last page or the client is already closed.
-    :exception RequestError: The client received a non-favorable response from the API.
-    :exception Ratelimited: The client is ratelimited from sending more requests.
-
-    :returns: A cursor-paginated list of votes for a project, ordered by creation date (oldest first within each page.)
-    :rtype: :class:`.Paginated`\ [:class:`.Vote`\ ]
-    """
-
-    if getattr(reference, 'is_last', False):
-      raise Error('The reference is already on the last page.')
-
-    params = {}
-
-    if since is not None:
-      now_timestamp = datetime.now(UTC).timestamp()
-      since_timestamp = since.timestamp()
-
-      if now_timestamp < since_timestamp or (
-        (now_timestamp - since_timestamp) > 31536000
-      ):
-        raise ValueError('Invalid since timestamp.')
-
-      params['startDate'] = since.isoformat()
-    elif reference is not None:
-      params['cursor'] = reference._cursor
-    else:
-      raise ValueError('Missing required arguments.')
-
-    return Paginated(
-      Vote,
-      'data',
-      await self._json_request('GET', f'/projects/{id}/votes', params=params),
-    )
-
-  async def get_vote(
-    self, id: int, user_id: int, source: UserSource
-  ) -> PartialVote | None:
-    """
-    Fetches the most recent vote for a specific user.
-
-    :param id: The project's Top.gg ID.
-    :type id: :py:class:`int`
-    :param user_id: The ID of the user to look up. The expected format depends on the source parameter.
-    :type user_id: :py:class:`int`
-    :param source: The ID type being provided.
-    :type source: :class:`.UserSource`
-
-    :exception Error: The client is already closed.
-    :exception RequestError: The client received a non-favorable response from the API.
-    :exception Ratelimited: The client is ratelimited from sending more requests.
-
-    :returns: The most recent vote for a specific user if it exists.
-    :rtype: :class:`.PartialVote` | :py:obj:`None`
-    """
-
-    try:
-      return PartialVote(
-        await self._json_request(
-          'GET', f'/projects/{id}/votes/{user_id}', params={'source': source.value}
-        )
-      )
-    except RequestError as error:  # pragma: nocover
-      if error.status == 404 and error.code in ('VOTE_NOT_FOUND', 'VOTE_EXPIRED'):
-        return
-      raise
-
-  async def get_integrations(self, id: int) -> list[Integration]:
-    r"""
-    Fetches the integrations available for a project and whether each one is connected.
-
-    :param id: The project's Top.gg ID.
-    :type id: :py:class:`int`
-
-    :exception Error: The client is already closed.
-    :exception RequestError: The client received a non-favorable response from the API.
-    :exception Ratelimited: The client is ratelimited from sending more requests.
-
-    :returns: The integrations available for a project and whether each one is connected.
-    :rtype: :py:class:`list`\ [:class:`.Integration`\ ]
-    """
-
-    return [
-      Integration(integration)
-      for integration in await self._json_request('GET', f'/projects/{id}/integrations')
-    ]
-
-  async def connect_integration(
-    self, project_id: int, integration_id: int
-  ) -> None:
-    """
-    Connects an integration to the project. Top.gg runs the integration handshake and starts delivering events to it.
-
-    :param project_id: The project's Top.gg ID.
-    :type project_id: :py:class:`int`
-    :param integration_id: The integration's Top.gg ID.
-    :type integration_id: :py:class:`int`
-
-    :exception Error: The client is already closed.
-    :exception RequestError: The client received a non-favorable response from the API.
-    :exception Ratelimited: The client is ratelimited from sending more requests.
-    """
-
-    await self._json_request(
-      'PUT', f'/projects/{project_id}/integrations/{integration_id}'
-    )
-
-  async def disconnect_integration(
-    self, project_id: int, integration_id: int
-  ) -> None:
-    """
-    Disconnects an integration the application connected. The integration receives an integration.delete event.
-
-    :param project_id: The project's Top.gg ID.
-    :type project_id: :py:class:`int`
-    :param integration_id: The integration's Top.gg ID.
-    :type integration_id: :py:class:`int`
-
-    :exception Error: The client is already closed.
-    :exception RequestError: The client received a non-favorable response from the API.
-    :exception Ratelimited: The client is ratelimited from sending more requests.
-    """
-
-    await self._json_request(
-      'DELETE', f'/projects/{project_id}/integrations/{integration_id}'
-    )
-
-  async def get_webhooks(self, id: int) -> list[Webhook]:
-    r"""
-    Fetches the webhooks the application created on the project.
-
-    :param id: The project's Top.gg ID.
-    :type id: :py:class:`int`
-
-    :exception Error: The client is already closed.
-    :exception RequestError: The client received a non-favorable response from the API.
-    :exception Ratelimited: The client is ratelimited from sending more requests.
-
-    :returns: The webhooks the application created on the project.
-    :rtype: :py:class:`list`\ [:class:`.Webhook`\ ]
-    """
-
-    return [
-      Webhook(webhook)
-      for webhook in await self._json_request('GET', f'/projects/{id}/webhooks')
-    ]
-
-  async def create_webhook(self, id: int, webhook: BaseWebhook) -> Webhook:
-    """
-    Creates a vote webhook on the project.
-
-    :param id: The project's Top.gg ID.
-    :type id: :py:class:`int`
-    :param webhook: The vote webhook.
-    :type webhook: :class:`.BaseWebhook`
-
-    :exception Error: The client is already closed.
-    :exception RequestError: The client received a non-favorable response from the API.
-    :exception Ratelimited: The client is ratelimited from sending more requests.
-
-    :returns: The created webhook.
-    :rtype: :class:`.Webhook`
-    """
-
-    return Webhook(
-      await self._json_request(
-        'POST',
-        f'/projects/{id}/webhooks',
-        body={'label': webhook.label, 'url': webhook.url},
-      )
-    )
-
-  async def delete_webhook(self, project_id: int, webhook_id: int) -> None:
-    """
-    Deletes a webhook the application created.
-
-    :param project_id: The project's Top.gg ID.
-    :type project_id: :py:class:`int`
-    :param webhook_id: The webhook's Top.gg ID.
-    :type webhook_id: :py:class:`int`
-
-    :exception Error: The client is already closed.
-    :exception RequestError: The client received a non-favorable response from the API.
-    :exception Ratelimited: The client is ratelimited from sending more requests.
-    """
-
-    await self._json_request('DELETE', f'/projects/{project_id}/webhooks/{webhook_id}')
-
-  async def rotate_webhook_secret(
-    self, project_id: int, webhook_id: int
-  ) -> str:
-    """
-    Replaces the signing secret of a webhook the application created. The previous secret stops working immediately.
-
-    :param project_id: The project's Top.gg ID.
-    :type project_id: :py:class:`int`
-    :param webhook_id: The webhook's Top.gg ID.
-    :type webhook_id: :py:class:`int`
-
-    :exception Error: The client is already closed.
-    :exception RequestError: The client received a non-favorable response from the API.
-    :exception Ratelimited: The client is ratelimited from sending more requests.
-
-    :returns: The new webhook secret.
-    :rtype: :py:class:`str`
-    """
-
-    return (
-      await self._json_request(
-        'POST', f'/projects/{project_id}/webhooks/{webhook_id}/rotate'
-      )
-    )['secret']
-
-  async def test_webhook(self, project_id: int, webhook_id: int) -> None:
-    """
-    Sends a webhook.test event to a webhook the application created.
-
-    :param project_id: The project's Top.gg ID.
-    :type project_id: :py:class:`int`
-    :param webhook_id: The webhook's Top.gg ID.
-    :type webhook_id: :py:class:`int`
-
-    :exception Error: The client is already closed.
-    :exception RequestError: The client received a non-favorable response from the API.
-    :exception Ratelimited: The client is ratelimited from sending more requests.
-    """
-
-    await self._json_request(
-      'POST', f'/projects/{project_id}/webhooks/{webhook_id}/test'
-    )
 
   async def get_authorized_user(self) -> User:
     """

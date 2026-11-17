@@ -5,6 +5,7 @@ Oauth2 client reference
    :members:
 
 .. autoclass:: topgg.client.Oauth2Client()
+   :inherited-members:
    :members:
 
 .. autoclass:: topgg.client.Oauth2URL()
