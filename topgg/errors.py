@@ -12,7 +12,7 @@ class Error(Exception):
 class RequestError(Error):
   """Thrown upon HTTP request failure. Extends :class:`.Error`."""
 
-  __slots__: tuple[str, ...] = ('type', 'title', 'status', 'detail', 'code')
+  __slots__: tuple[str, ...] = ('code', 'detail', 'status', 'title', 'type')
 
   type: str | None
   """The URI identifying the error type."""

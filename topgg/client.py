@@ -6,9 +6,8 @@ import base64
 import hashlib
 import json
 import secrets
-from abc import ABC, abstractmethod
-from asyncio import Lock, Task, create_task, sleep
-from dataclasses import dataclass, field
+from asyncio import sleep
+from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
 from typing import Any, Self
 from urllib.parse import quote_plus
@@ -846,7 +845,7 @@ class Oauth2Session:
   :type json: :py:class:`dict`
   """
 
-  __slots__: tuple[str, ...] = ('token', 'refresh_token', 'expires_at')
+  __slots__: tuple[str, ...] = ('expires_at', 'refresh_token', 'token')
 
   token: str
   """The session's access token."""

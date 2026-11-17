@@ -5,7 +5,7 @@
 from abc import ABC, abstractmethod
 from collections.abc import Iterator
 from dataclasses import dataclass
-from datetime import UTC, datetime, timezone
+from datetime import UTC, datetime
 from enum import Enum
 
 
@@ -348,7 +348,7 @@ class DiscordServerMetrics(Metrics):
   :exception ValueError: The ``online_count`` and/or ``online_count`` must be specified.
   """
 
-  __slots__: tuple[str, ...] = ('online_count', 'member_count')
+  __slots__: tuple[str, ...] = ('member_count', 'online_count')
 
   member_count: int | None
   """The server's total member count."""
@@ -451,7 +451,7 @@ class TimestampedMetrics[M: Metrics]:
 
     self._json.append(
       {
-        'timestamp': timestamp.astimezone(timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ'),
+        'timestamp': timestamp.astimezone(UTC).strftime('%Y-%m-%dT%H:%M:%SZ'),
         'metrics': metrics._to_json(),
       }
     )

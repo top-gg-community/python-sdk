@@ -5,11 +5,11 @@
 from . import webhooks
 from .client import (
   ApplicationClient,
-  ProjectClient,
   Oauth2,
   Oauth2Client,
   Oauth2Session,
   Oauth2URL,
+  ProjectClient,
 )
 from .errors import Error, Ratelimited, RequestError
 from .models import (
