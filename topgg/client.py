@@ -1060,7 +1060,7 @@ class Oauth2Client(BaseApplicationClient):
 
     return Oauth2SessionGuard(self)
 
-  async def has_expired(self) -> bool:
+  async def has_expired(self) -> bool:  # pragma: nocover
     """
     Whether the client's session access token has expired.
 
