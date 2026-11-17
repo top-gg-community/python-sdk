@@ -372,7 +372,9 @@ class BaseClient(ABC):
     else:
       raise ValueError('Missing required arguments.')
 
-    return Paginated(Vote, 'data', await self._request('GET', f'/projects/{id}/votes', params=params))
+    return Paginated(
+      Vote, 'data', await self._request('GET', f'/projects/{id}/votes', params=params)
+    )
 
   async def get_vote(
     self, id: int | str, user_id: int | str, source: UserSource
@@ -422,9 +424,7 @@ class BaseClient(ABC):
 
     return [
       Integration(integration)
-      for integration in await self._request(
-        'GET', f'/projects/{id}/integrations'
-      )
+      for integration in await self._request('GET', f'/projects/{id}/integrations')
     ]
 
   async def connect_integration(
