@@ -935,13 +935,7 @@ class Oauth2URL:
 
     body = f'grant_type=authorization_code&client_id={self._oauth2._client_id}&client_secret={self._oauth2._client_secret}&code={quote_plus(code)}&redirect_uri={quote_plus(self._oauth2._redirect_uri)}&code_verifier={quote_plus(self.code_verifier)}'
 
-    data = await self._oauth2._http._request(
-      'POST',
-      '/oauth2/token',
-      {'Content-Type': 'application/x-www-form-urlencoded'},
-      body=body,
-      with_token=False,
-    )
+    data = await self._oauth2._form_request('POST', '/oauth2/token', body)
 
     return Oauth2Session(json=data)
 
@@ -980,6 +974,19 @@ class Oauth2:
 
   def __repr__(self) -> str:
     return f'<{__class__.__name__} client_id={self._client_id!r} redirect_uri={self._redirect_uri!r} scope={self._scope!r}>'
+
+  async def _form_request(
+    self, method: str, path: str, body: str, *, headers: dict[str, Any] = {}
+  ) -> Any:
+    headers['Content-Type'] = 'application/x-www-form-urlencoded'
+
+    return await self._http._request(
+      method,
+      path,
+      headers,
+      body=body,
+      with_token=False,
+    )
 
   def new_client(self, session: Oauth2Session) -> 'Oauth2Client':
     """
@@ -1059,13 +1066,7 @@ class Oauth2Client(BaseApplicationClient):
 
       body = f'grant_type=refresh_token&client_id={self._oauth2._client_id}&client_secret={self._oauth2._client_secret}&refresh_token={self.session.refresh_token}'
 
-      data = await self._oauth2._http._request(
-        'POST',
-        '/oauth2/token',
-        {'Content-Type': 'application/x-www-form-urlencoded'},
-        body=body,
-        with_token=False,
-      )
+      data = await self._oauth2._form_request('POST', '/oauth2/token', body)
 
       self.session._update(data)
 
@@ -1145,10 +1146,8 @@ class Oauth2Client(BaseApplicationClient):
     :exception Ratelimited: The client is ratelimited from sending more requests.
     """
 
-    await self._oauth2._http._request(
+    await self._oauth2._form_request(
       'POST',
       '/oauth2/revoke',
-      {'Content-Type': 'application/x-www-form-urlencoded'},
-      body=f'client_id={self._oauth2._client_id}&client_secret={self._oauth2._client_secret}&token={self.session.refresh_token}',
-      with_token=False,
+      f'client_id={self._oauth2._client_id}&client_secret={self._oauth2._client_secret}&token={self.session.refresh_token}',
     )
