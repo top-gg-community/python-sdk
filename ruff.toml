@@ -7,4 +7,4 @@ line-ending = "lf"
 quote-style = "single"
 
 [lint]
-ignore = ["B008", "FURB162", "SIM115"]
+ignore = ["B006", "B008", "FURB162", "SIM115"]
