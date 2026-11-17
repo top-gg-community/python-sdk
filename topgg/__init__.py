@@ -4,11 +4,11 @@
 
 from . import webhooks
 from .client import (
-  Client,
+  ApplicationClient,
+  ProjectClient,
   Oauth2,
   Oauth2Client,
   Oauth2Session,
-  Oauth2SessionGuard,
   Oauth2URL,
 )
 from .errors import Error, Ratelimited, RequestError
@@ -51,8 +51,8 @@ __version__ = VERSION
 __all__ = (
   'VERSION',
   'AnnouncementCategory',
+  'ApplicationClient',
   'BaseWebhook',
-  'Client',
   'DiscordBotMetrics',
   'DiscordServerMetrics',
   'Error',
@@ -63,13 +63,13 @@ __all__ = (
   'Oauth2',
   'Oauth2Client',
   'Oauth2Session',
-  'Oauth2SessionGuard',
   'Oauth2URL',
   'Paginated',
   'PartialProject',
   'PartialVote',
   'Platform',
   'Project',
+  'ProjectClient',
   'ProjectSubmission',
   'ProjectType',
   'Ratelimited',

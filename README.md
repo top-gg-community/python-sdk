@@ -27,7 +27,7 @@ import os
 
 
 async def main():
-  async with topgg.Client(os.getenv('TOPGG_TOKEN')) as client:
+  async with topgg.ProjectClient(os.getenv('TOPGG_TOKEN')) as client:
     project = await client.get_project()
     print(project)
 

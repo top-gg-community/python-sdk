@@ -18,30 +18,29 @@ import topgg
 
 
 @pytest_asyncio.fixture
-async def client() -> AsyncGenerator[topgg.Client, None]:
-  client = topgg.Client('')
+async def client() -> AsyncGenerator[topgg.ProjectClient, None]:
+  client = topgg.ProjectClient('')
 
   yield client
   await client.close()
 
 
-def test_Client_attributes_work(client: topgg.Client) -> None:
+def test_ProjectClient_attributes_work(client: topgg.ProjectClient) -> None:
   _test_attributes(client)
-  _test_attributes(client._http)
 
 
 @pytest.mark.asyncio
-async def test_Client_basic_error_handling_works() -> None:
+async def test_ProjectClient_basic_error_handling_works() -> None:
   with pytest.raises(topgg.Error, match=r'^Client session is already closed\.$'):
-    test_client = topgg.Client('')
+    test_client = topgg.ProjectClient('')
 
     await test_client.close()
     await test_client.get_project()
 
 
 @pytest.mark.asyncio
-async def test_Client_request_error_handling_works(
-  monkeypatch: pytest.MonkeyPatch, client: topgg.Client
+async def test_ProjectClient_request_error_handling_works(
+  monkeypatch: pytest.MonkeyPatch, client: topgg.ProjectClient
 ) -> None:
   with RequestMock(404, 'Not Found', response='mocks/404_standard.json') as request:
     monkeypatch.setattr('aiohttp.ClientSession.request', request)
@@ -72,40 +71,9 @@ async def test_Client_request_error_handling_works(
 
 
 @pytest.mark.asyncio
-async def test_Client_get_projects_works(
+async def test_ProjectClient_get_projects_id_works(
   monkeypatch: pytest.MonkeyPatch,
-  client: topgg.Client,
-) -> None:
-  with RequestMock(200, 'OK', response='mocks/get_projects_cursor.json') as request:
-    monkeypatch.setattr('aiohttp.ClientSession.request', request)
-
-    projects = await client.get_projects()
-    _test_attributes(projects)
-
-    for project in projects:
-      _test_attributes(project)
-
-    await client.get_projects(projects)
-
-    assert request.call_count == 2
-
-  with RequestMock(200, 'OK', response='mocks/get_projects.json') as request:
-    monkeypatch.setattr('aiohttp.ClientSession.request', request)
-
-    with pytest.raises(
-      topgg.Error, match=r'^The reference is already on the last page\.$'
-    ):
-      projects = await client.get_projects()
-
-      request.assert_called_once()
-
-      await client.get_projects(projects)
-
-
-@pytest.mark.asyncio
-async def test_Client_get_projects_id_works(
-  monkeypatch: pytest.MonkeyPatch,
-  client: topgg.Client,
+  client: topgg.ProjectClient,
 ) -> None:
   with RequestMock(200, 'OK', response='mocks/get_projects_id.json') as request:
     monkeypatch.setattr('aiohttp.ClientSession.request', request)
@@ -117,9 +85,9 @@ async def test_Client_get_projects_id_works(
 
 
 @pytest.mark.asyncio
-async def test_Client_edit_project_works(
+async def test_ProjectClient_edit_project_works(
   monkeypatch: pytest.MonkeyPatch,
-  client: topgg.Client,
+  client: topgg.ProjectClient,
 ) -> None:
   with RequestMock(204, 'No Content', response={}) as request:
     monkeypatch.setattr('aiohttp.ClientSession.request', request)
@@ -187,9 +155,9 @@ async def test_Client_edit_project_works(
 
 
 @pytest.mark.asyncio
-async def test_Client_post_announcement_works(
+async def test_ProjectClient_post_announcement_works(
   monkeypatch: pytest.MonkeyPatch,
-  client: topgg.Client,
+  client: topgg.ProjectClient,
 ) -> None:
   with RequestMock(204, 'No Content', response={}) as request:
     monkeypatch.setattr('aiohttp.ClientSession.request', request)
@@ -220,9 +188,9 @@ async def test_Client_post_announcement_works(
 
 
 @pytest.mark.asyncio
-async def test_Client_post_metrics_works(
+async def test_ProjectClient_post_metrics_works(
   monkeypatch: pytest.MonkeyPatch,
-  client: topgg.Client,
+  client: topgg.ProjectClient,
 ) -> None:
   with RequestMock(204, 'No Content', response={}) as request:
     monkeypatch.setattr('aiohttp.ClientSession.request', request)
@@ -287,9 +255,9 @@ async def test_Client_post_metrics_works(
 
 
 @pytest.mark.asyncio
-async def test_Client_post_timestamped_metrics_works(
+async def test_ProjectClient_post_timestamped_metrics_works(
   monkeypatch: pytest.MonkeyPatch,
-  client: topgg.Client,
+  client: topgg.ProjectClient,
 ) -> None:
   with RequestMock(204, 'No Content', response={}) as request:
     monkeypatch.setattr('aiohttp.ClientSession.request', request)
@@ -328,9 +296,9 @@ async def test_Client_post_timestamped_metrics_works(
 
 
 @pytest.mark.asyncio
-async def test_Client_post_commands_works(
+async def test_ProjectClient_post_commands_works(
   monkeypatch: pytest.MonkeyPatch,
-  client: topgg.Client,
+  client: topgg.ProjectClient,
 ) -> None:
   with RequestMock(204, 'No Content', response={}) as request:
     monkeypatch.setattr('aiohttp.ClientSession.request', request)
@@ -353,9 +321,9 @@ async def test_Client_post_commands_works(
 
 
 @pytest.mark.asyncio
-async def test_Client_get_votes_works(
+async def test_ProjectClient_get_votes_works(
   monkeypatch: pytest.MonkeyPatch,
-  client: topgg.Client,
+  client: topgg.ProjectClient,
 ) -> None:
   with RequestMock(
     200, 'OK', response='mocks/get_projects_id_votes_cursor.json'
@@ -392,9 +360,9 @@ async def test_Client_get_votes_works(
 
 
 @pytest.mark.asyncio
-async def test_Client_get_vote_works(
+async def test_ProjectClient_get_vote_works(
   monkeypatch: pytest.MonkeyPatch,
-  client: topgg.Client,
+  client: topgg.ProjectClient,
 ) -> None:
   with RequestMock(
     200, 'OK', response='mocks/get_projects_id_votes_id.json'
@@ -413,132 +381,5 @@ async def test_Client_get_vote_works(
     vote = await client.get_vote(661200758510977084, topgg.UserSource.DISCORD)
 
     assert vote is None
-
-    request.assert_called_once()
-
-
-@pytest.mark.asyncio
-async def test_Client_get_integrations_works(
-  monkeypatch: pytest.MonkeyPatch,
-  client: topgg.Client,
-) -> None:
-  with RequestMock(
-    200, 'OK', response='mocks/get_projects_id_integrations.json'
-  ) as request:
-    monkeypatch.setattr('aiohttp.ClientSession.request', request)
-
-    integrations = await client.get_integrations(364806029876555776)
-    _test_attributes(integrations)
-
-    for integration in integrations:
-      _test_attributes(integration)
-
-    request.assert_called_once()
-
-
-@pytest.mark.asyncio
-async def test_Client_connect_integration_works(
-  monkeypatch: pytest.MonkeyPatch,
-  client: topgg.Client,
-) -> None:
-  with RequestMock(204, 'No Content', response={}) as request:
-    monkeypatch.setattr('aiohttp.ClientSession.request', request)
-
-    await client.connect_integration(364806029876555776, 364806029876555776)
-
-    request.assert_called_once()
-
-
-@pytest.mark.asyncio
-async def test_Client_disconnect_integration_works(
-  monkeypatch: pytest.MonkeyPatch,
-  client: topgg.Client,
-) -> None:
-  with RequestMock(204, 'No Content', response={}) as request:
-    monkeypatch.setattr('aiohttp.ClientSession.request', request)
-
-    await client.disconnect_integration(364806029876555776, 364806029876555776)
-
-    request.assert_called_once()
-
-
-@pytest.mark.asyncio
-async def test_Client_get_webhooks_works(
-  monkeypatch: pytest.MonkeyPatch,
-  client: topgg.Client,
-) -> None:
-  with RequestMock(
-    200, 'OK', response='mocks/get_projects_id_webhooks.json'
-  ) as request:
-    monkeypatch.setattr('aiohttp.ClientSession.request', request)
-
-    webhooks = await client.get_webhooks(364806029876555776)
-    _test_attributes(webhooks)
-
-    for webhook in webhooks:
-      _test_attributes(webhook)
-
-    request.assert_called_once()
-
-
-@pytest.mark.asyncio
-async def test_Client_create_webhook_works(
-  monkeypatch: pytest.MonkeyPatch,
-  client: topgg.Client,
-) -> None:
-  with RequestMock(
-    200, 'OK', response='mocks/post_projects_id_webhooks.json'
-  ) as request:
-    monkeypatch.setattr('aiohttp.ClientSession.request', request)
-
-    webhook = topgg.BaseWebhook(
-      label='test webhook', url='http://localhost:3000/webhooks'
-    )
-    _test_attributes(webhook)
-
-    created_webhook = await client.create_webhook(364806029876555776, webhook)
-    _test_attributes(created_webhook)
-
-    request.assert_called_once()
-
-
-@pytest.mark.asyncio
-async def test_Client_delete_webhook_works(
-  monkeypatch: pytest.MonkeyPatch,
-  client: topgg.Client,
-) -> None:
-  with RequestMock(204, 'No Content', response={}) as request:
-    monkeypatch.setattr('aiohttp.ClientSession.request', request)
-
-    await client.delete_webhook(364806029876555776, 364806029876555776)
-
-    request.assert_called_once()
-
-
-@pytest.mark.asyncio
-async def test_Client_rotate_webhook_secret_works(
-  monkeypatch: pytest.MonkeyPatch,
-  client: topgg.Client,
-) -> None:
-  with RequestMock(
-    200, 'OK', response='mocks/post_projects_id_webhooks_id_rotate.json'
-  ) as request:
-    monkeypatch.setattr('aiohttp.ClientSession.request', request)
-
-    secret = await client.rotate_webhook_secret(364806029876555776, 364806029876555776)
-
-    assert isinstance(secret, str) and len(secret) > 0
-    request.assert_called_once()
-
-
-@pytest.mark.asyncio
-async def test_Client_test_webhook_works(
-  monkeypatch: pytest.MonkeyPatch,
-  client: topgg.Client,
-) -> None:
-  with RequestMock(204, 'No Content', response={}) as request:
-    monkeypatch.setattr('aiohttp.ClientSession.request', request)
-
-    await client.test_webhook(364806029876555776, 364806029876555776)
 
     request.assert_called_once()
