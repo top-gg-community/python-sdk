@@ -246,9 +246,9 @@ class LocaleMap:
     :param locale: The locale.
     :type locale: :class:`.Locale`
     :param text: The text.
-    :type text: :class:`str`
+    :type text: :py:class:`str`
 
-    :exception TypeError: ``locale`` is not a part of the :class:`.Locale` enum or ``text`` is not a :class:`str`.
+    :exception TypeError: ``locale`` is not a part of the :class:`.Locale` enum or ``text`` is not a :py:class:`str`.
     """
 
     if not isinstance(locale, Locale):
@@ -292,11 +292,11 @@ class DiscordBotMetrics(Metrics):
   A Discord bot's metrics.
 
   :param server_count: The bot's server count.
-  :type server_count: :class:`int`
+  :type server_count: :py:class:`int` | :py:obj:`None`
   :param shard_count: The bot's shard count.
-  :type shard_count: :class:`int`
+  :type shard_count: :py:class:`int` | :py:obj:`None`
 
-  :exception TypeError: ``server_count`` is not an :class:`int` or ``shard_count`` is not an :class:`int`.
+  :exception TypeError: ``server_count`` is not an :py:class:`int` or ``shard_count`` is not an :py:class:`int`.
   :exception ValueError: The ``server_count`` and/or ``shard_count`` must be specified.
   """
 
@@ -340,11 +340,11 @@ class DiscordServerMetrics(Metrics):
   A Discord server's metrics.
 
   :param member_count: The server's server count.
-  :type member_count: :class:`int`
+  :type member_count: :py:class:`int` | :py:obj:`None`
   :param online_count: The server's shard count.
-  :type online_count: :class:`int`
+  :type online_count: :py:class:`int` | :py:obj:`None`
 
-  :exception TypeError: ``online_count`` is not an :class:`int` or ``online_count`` is not an :class:`int`.
+  :exception TypeError: ``online_count`` is not an :py:class:`int` or ``online_count`` is not an :py:class:`int`.
   :exception ValueError: The ``online_count`` and/or ``online_count`` must be specified.
   """
 
@@ -393,9 +393,9 @@ class RobloxGameMetrics(Metrics):
   A Roblox game's metrics.
 
   :param player_count: The game's current player count.
-  :type player_count: :class:`int`
+  :type player_count: :py:class:`int`
 
-  :exception TypeError: ``player_count`` is not an :class:`int`.
+  :exception TypeError: ``player_count`` is not an :py:class:`int`.
   """
 
   __slots__: tuple[str, ...] = ('player_count',)
@@ -437,11 +437,11 @@ class TimestampedMetrics[M: Metrics]:
     Inserts a new timestamped metrics entry.
 
     :param timestamp: The timestamp.
-    :type timestamp: :class:`datetime`
+    :type timestamp: :py:class:`~datetime.datetime`
     :param metrics: The project's metrics.
     :type metrics: :class:`.Metrics`
 
-    :exception TypeError: ``timestamp`` is not a :class:`datetime` or ``metrics`` is not a :class:`.Metrics`.
+    :exception TypeError: ``timestamp`` is not a :py:class:`~datetime.datetime` or ``metrics`` is not a :class:`.Metrics`.
     """
 
     if not isinstance(timestamp, datetime):
