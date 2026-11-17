@@ -872,12 +872,7 @@ class Oauth2Session:
 
   @property
   def has_expired(self) -> bool:
-    """
-    Whether the session's access token has expired.
-
-    :returns: Whether the session's access token has expired.
-    :rtype: :py:class:`bool`
-    """
+    """Whether the session's access token has expired."""
 
     return datetime.now(UTC) >= self.expires_at
 
