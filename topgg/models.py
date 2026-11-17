@@ -725,11 +725,11 @@ class Paginated[T: Model]:
   __slots__: tuple[str, ...] = ('_cursor', '_data')
 
   _data: list[T]
-  _cursor: str | None
+  _cursor: str
 
   def __init__(self, cls: type[T], key: str, json: dict):
     self._data = [cls(data) for data in json[key]]
-    self._cursor = json.get('cursor')
+    self._cursor = json['cursor']
 
   def __len__(self) -> int:
     return len(self._data)
@@ -744,4 +744,4 @@ class Paginated[T: Model]:
   def is_last(self) -> bool:
     """Whether this is the last page."""
 
-    return self._cursor is None
+    return len(self._data) == 0

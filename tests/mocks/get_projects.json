@@ -1,11 +1,4 @@
 {
-  "projects": [
-    {
-      "id": "218109768489992192",
-      "platform_id": "1234567890",
-      "name": "Example Bot",
-      "platform": "discord",
-      "type": "bot"
-    }
-  ]
+  "cursor": "abcdef",
+  "projects": []
 }
