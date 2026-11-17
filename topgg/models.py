@@ -24,7 +24,7 @@ class Platform(Enum):
   """Unknown."""
 
   @classmethod
-  def _missing_(cls, value: object) -> Platform:  # pragma: nocover
+  def _missing_(cls, value: object):  # pragma: nocover
     return Platform.UNKNOWN
 
 
@@ -46,7 +46,7 @@ class ProjectType(Enum):
   """Unknown."""
 
   @classmethod
-  def _missing_(cls, value: object) -> ProjectType:  # pragma: nocover
+  def _missing_(cls, value: object):  # pragma: nocover
     return ProjectType.UNKNOWN
 
 
