@@ -261,6 +261,7 @@ aiohttp Oauth2
    :hidden:
 
    project
+   application
    oauth2
    models
    errors

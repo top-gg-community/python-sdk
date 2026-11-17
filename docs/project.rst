@@ -1,6 +1,5 @@
-Project/Application client reference
-====================================
+Project client reference
+========================
 
-.. autoclass:: topgg.client.Client
-   :inherited-members:
+.. autoclass:: topgg.client.ProjectClient
    :members:
