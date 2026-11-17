@@ -920,6 +920,7 @@ class Oauth2URL:
       '/oauth2/token',
       {'Content-Type': 'application/x-www-form-urlencoded'},
       body=body,
+      with_token=False
     )
 
     return Oauth2Session(json=data)
@@ -1043,6 +1044,7 @@ class Oauth2Client(HttpClient):
       '/oauth2/token',
       {'Content-Type': 'application/x-www-form-urlencoded'},
       body=body,
+      with_token=False
     )
 
     self._oauth2_session = Oauth2Session(json=data)
@@ -1554,4 +1556,5 @@ class Oauth2Client(HttpClient):
       '/oauth2/revoke',
       {'Content-Type': 'application/x-www-form-urlencoded'},
       body=f'client_id={self._oauth2._client_id}&client_secret={self._oauth2._client_secret}&token={self._oauth2_session.refresh_token}',
+      with_token=False
     )
