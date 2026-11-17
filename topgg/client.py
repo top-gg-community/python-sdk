@@ -373,6 +373,8 @@ class ProjectClient(HttpClient):
 
 
 class BaseApplicationClient(HttpClient):
+  """A base client for application and oauth2 access tokens."""
+
   __slots__: tuple[str, ...] = ()
 
   def __init__(self, session: ClientSession | None = None):
