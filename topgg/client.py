@@ -1076,17 +1076,6 @@ class Oauth2Client(BaseApplicationClient):
 
     return Oauth2SessionGuard(self)
 
-  async def has_expired(self) -> bool:  # pragma: nocover
-    """
-    Whether the client's session access token has expired.
-
-    :returns: Whether the client's session access token has expired.
-    :rtype: :py:class:`bool`
-    """
-
-    async with self.session as session:
-      return session.has_expired
-
   async def get_authorized_user(self) -> User:
     """
     Fetches the user who authorized the application.
