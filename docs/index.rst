@@ -266,6 +266,7 @@ aiohttp Oauth2
    models
    errors
    webhooks
+   widget
    support-server
    repository
    raw-api-reference
