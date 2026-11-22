@@ -28,7 +28,7 @@ classifiers = [
 requires-python = ">=3.12"
 
 [project.optional-dependencies]
-dev = ["mock>=5.2.0", "pytest>=9.2.0", "pytest-asyncio>=1.4.1", "pytest-mock>=3.17.0", "pytest-cov>=7.1.0", "ruff>=0.17.6"]
+dev = ["mock>=5.2.0", "pytest>=9.2.0", "pytest-asyncio>=1.5.0", "pytest-mock>=3.17.0", "pytest-cov>=7.1.0", "ruff>=0.17.6"]
 
 [project.urls]
 Documentation = "https://topggpy.readthedocs.io/en/latest/"
