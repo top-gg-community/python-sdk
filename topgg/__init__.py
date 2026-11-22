@@ -39,6 +39,7 @@ from .models import (
   Webhook,
 )
 from .version import VERSION
+from .widget import Widget
 
 __title__ = 'topggpy'
 __author__ = 'null8626 & Top.gg'
@@ -83,5 +84,6 @@ __all__ = (
   'UserSource',
   'Vote',
   'Webhook',
+  'Widget',
   'webhooks',
 )
