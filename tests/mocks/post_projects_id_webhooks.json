@@ -1,0 +1,6 @@
+{
+  "id": "1234567890",
+  "label": "Example app",
+  "url": "https://example.com/webhooks/topgg",
+  "secret": "whs_..."
+}

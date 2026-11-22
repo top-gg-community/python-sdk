@@ -1,0 +1,11 @@
+{
+  "id": "1234567890",
+  "username": "example",
+  "avatar": "https://cdn.top.gg/avatars/1234567890.webp",
+  "connections": [
+    {
+      "platform": "discord",
+      "id": "1234567890"
+    }
+  ]
+}

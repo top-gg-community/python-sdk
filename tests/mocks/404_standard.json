@@ -1,0 +1,7 @@
+{
+  "type": "https://tools.ietf.org/html/rfc9110#section-15.5.5",
+  "title": "User not found",
+  "status": 404,
+  "detail": "The user was not resolved into a valid Top.gg user. The user ID might be invalid, or the user may have deleted their account.",
+  "code": "USER_NOT_FOUND"
+}

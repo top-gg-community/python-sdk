@@ -1,0 +1,30 @@
+name: Publish to PyPI
+on:
+  release:
+    types: [created]
+  workflow_dispatch: null
+permissions:
+  id-token: write
+  contents: read
+jobs:
+  publish:
+    name: Publish to PyPI
+    runs-on: ubuntu-latest
+    environment:
+      name: publish
+      url: https://pypi.org/p/topggpy
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 1
+      - name: Setup Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: 3.15
+      - name: Install dependencies
+        run: python3 -m pip install build twine
+      - name: Build
+        run: python3 -m build
+      - name: Publish
+        uses: pypa/gh-action-pypi-publish@release/v1

@@ -1,0 +1,65 @@
+body {
+  --color-link-underline: rgba(0, 0, 0, 0%);
+  --color-link-underline--hover: var(--color-link);
+  --color-inline-code-background: rgba(0, 0, 0, 0%);
+  --color-api-background-hover: var(--color-background-primary);
+  --color-highlight-on-target: var(--color-background-primary) !important;
+  --font-stack: "Manrope", sans-serif !important;
+  --font-stack--monospace: "Roboto Mono", monospace !important;
+}
+
+aside.toc-drawer {
+  visibility: hidden;
+}
+
+#furo-readthedocs-versions, .injected, .edit-this-page, .related-pages, .headerlink {
+  visibility: hidden;
+  user-select: none;
+}
+
+dd dt {
+  color: var(--color-foreground-secondary);
+}
+
+aside.toc-drawer .docutils:hover, .sidebar-brand-text:hover {
+  transition: 0.15s;
+  filter: opacity(75%);
+}
+
+.highlight *, em {
+  font-style: normal !important;
+  text-decoration: none !important;
+  font-weight: normal !important;
+}
+
+.sig-paren, span.p, :not(.sig-name) > span.pre {
+  font-weight: normal !important;
+}
+
+:not(h1) > a.reference {
+  text-decoration: underline;
+}
+
+:not(h1) > a.reference:hover {
+  text-decoration: none;
+}
+
+.field-even p strong, .field-odd p strong {
+  font-family: var(--font-stack--monospace);
+}
+
+h1 > a.reference:hover {
+  text-decoration: underline;
+}
+
+h1 {
+  font-weight: 900;
+}
+
+.sidebar-brand-text {
+  font-weight: bolder;
+}
+
+.sidebar-scroll .reference.internal {
+  color: var(--color-brand-primary);
+}
