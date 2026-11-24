@@ -3,7 +3,7 @@ requires = ["setuptools"]
 
 [project]
 name = "topggpy"
-version = "2.0.0"
+version = "2.1.0"
 description = "The community-maintained Python SDK for Top.gg."
 readme = "README.md"
 license = "MIT"

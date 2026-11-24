@@ -16,10 +16,10 @@ class Project:
   """The project's Top.gg ID."""
 
   platform_id: str
-  """The project's Discord client ID or guild ID."""
+  """The project's platform ID."""
 
   platform: Platform
-  """The project's platform (always Platform.DISCORD)."""
+  """The project's platform."""
 
   def __init__(self, json: dict):
     self.id = int(json['id'])
@@ -27,7 +27,7 @@ class Project:
     self.platform = Platform(json['platform'])
 
   def __repr__(self) -> str:
-    return f'<{__class__.__name__} id={self.id} platform={self.platform!r} platform_id={self.platform_id}>'
+    return f'<{__class__.__name__} id={self.id} platform={self.platform!r} platform_id={self.platform_id!r}>'
 
 
 class User:
@@ -39,10 +39,10 @@ class User:
   """The user's Top.gg ID."""
 
   platform_id: str
-  """The user's Discord ID."""
+  """The user's platform ID."""
 
   name: str
-  """The user's Discord username."""
+  """The user's platform username."""
 
   avatar: str
   """The user's avatar URL."""
@@ -54,7 +54,7 @@ class User:
     self.avatar = json['avatar_url']
 
   def __repr__(self) -> str:
-    return f'<{__class__.__name__} id={self.id} name={self.name!r} platform_id={self.platform_id} avatar={self.avatar!r}>'
+    return f'<{__class__.__name__} id={self.id} name={self.name!r} platform_id={self.platform_id!r} avatar={self.avatar!r}>'
 
 
 class VoteCreate:
