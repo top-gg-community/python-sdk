@@ -618,15 +618,15 @@ class UserConnection(Model):
   platform: Platform
   """The connection's platform."""
 
-  id: int
+  id: str
   """The user's platform ID."""
 
   def __init__(self, json: dict):
     self.platform = Platform(json['platform'])
-    self.id = int(json['id'])
+    self.id = json['id']
 
   def __repr__(self) -> str:
-    return f'<{__class__.__name__} id={self.id} platform={self.platform!r}>'
+    return f'<{__class__.__name__} id={self.id!r} platform={self.platform!r}>'
 
   def __eq__(self, other: object) -> bool:
     return isinstance(other, __class__) and self.id == other.id
