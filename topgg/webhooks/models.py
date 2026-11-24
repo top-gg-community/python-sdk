@@ -27,7 +27,7 @@ class Project:
     self.platform = Platform(json['platform'])
 
   def __repr__(self) -> str:
-    return f'<{__class__.__name__} id={self.id} platform={self.platform!r} platform_id={self.platform_id}>'
+    return f'<{__class__.__name__} id={self.id} platform={self.platform!r} platform_id={self.platform_id!r}>'
 
 
 class User:
@@ -54,7 +54,7 @@ class User:
     self.avatar = json['avatar_url']
 
   def __repr__(self) -> str:
-    return f'<{__class__.__name__} id={self.id} name={self.name!r} platform_id={self.platform_id} avatar={self.avatar!r}>'
+    return f'<{__class__.__name__} id={self.id} name={self.name!r} platform_id={self.platform_id!r} avatar={self.avatar!r}>'
 
 
 class VoteCreate:

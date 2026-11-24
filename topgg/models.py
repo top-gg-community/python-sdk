@@ -88,7 +88,7 @@ class PartialProject(Model):
     self.type = ProjectType(json['type'])
 
   def __repr__(self) -> str:
-    return f'<{__class__.__name__} id={self.id} type={self.type!r} name={self.name!r} platform={self.platform!r} platform_id={self.platform_id}>'
+    return f'<{__class__.__name__} id={self.id} type={self.type!r} name={self.name!r} platform={self.platform!r} platform_id={self.platform_id!r}>'
 
   def __eq__(self, other: object) -> bool:
     return isinstance(other, __class__) and self.id == other.id
@@ -522,7 +522,7 @@ class Vote(PartialVote):
 
   def __repr__(self) -> str:
     return (
-      f'<{__class__.__name__} user_id={self.user_id} platform_id={self.platform_id}>'
+      f'<{__class__.__name__} user_id={self.user_id} platform_id={self.platform_id!r}>'
     )
 
 
@@ -720,7 +720,7 @@ class ProjectSubmission:
   """The project's page content."""
 
   def __repr__(self) -> str:
-    return f'<{__class__.__name__} headline={self.headline!r} page_content={self.page_content!r} platform={self.platform!r} platform_id={self.platform_id} type={self.type!r}>'
+    return f'<{__class__.__name__} headline={self.headline!r} page_content={self.page_content!r} platform={self.platform!r} platform_id={self.platform_id!r} type={self.type!r}>'
 
 
 class Paginated[T: Model]:
