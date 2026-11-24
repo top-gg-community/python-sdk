@@ -4,13 +4,13 @@
 
 from datetime import datetime
 
-from ..models import Platform
+from ..models import Platform, ProjectType
 
 
 class Project:
   """A project."""
 
-  __slots__: tuple[str, ...] = ('id', 'platform', 'platform_id')
+  __slots__: tuple[str, ...] = ('id', 'platform', 'platform_id', 'type')
 
   id: int
   """The project's Top.gg ID."""
@@ -21,13 +21,17 @@ class Project:
   platform: Platform
   """The project's platform."""
 
+  type: ProjectType
+  """The project's type."""
+
   def __init__(self, json: dict):
     self.id = int(json['id'])
     self.platform_id = json['platform_id']
     self.platform = Platform(json['platform'])
+    self.type = ProjectType(json['type'])
 
   def __repr__(self) -> str:
-    return f'<{__class__.__name__} id={self.id} platform={self.platform!r} platform_id={self.platform_id!r}>'
+    return f'<{__class__.__name__} id={self.id} platform={self.platform!r} platform_id={self.platform_id!r} type={self.type!r}>'
 
 
 class User:
