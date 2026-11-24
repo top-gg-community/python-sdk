@@ -16,10 +16,10 @@ class Project:
   """The project's Top.gg ID."""
 
   platform_id: str
-  """The project's Discord client ID or guild ID."""
+  """The project's platform ID."""
 
   platform: Platform
-  """The project's platform (always Platform.DISCORD)."""
+  """The project's platform."""
 
   def __init__(self, json: dict):
     self.id = int(json['id'])
@@ -39,10 +39,10 @@ class User:
   """The user's Top.gg ID."""
 
   platform_id: str
-  """The user's Discord ID."""
+  """The user's platform ID."""
 
   name: str
-  """The user's Discord username."""
+  """The user's platform username."""
 
   avatar: str
   """The user's avatar URL."""
